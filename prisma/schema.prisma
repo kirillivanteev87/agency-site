@@ -1,0 +1,159 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model SiteSettings {
+  id              Int    @id @default(1)
+  brandName       String @default("STUDIO")
+  brandHighlightText  String @default("")
+  brandHighlightColor String @default("")
+  heroTitle       String @default("Создаём цифровые продукты")
+  heroHighlight   String @default("которые работают")
+  heroSubtitle    String @default("Веб-студия полного цикла: дизайн, разработка, продвижение")
+  heroMeta        String @default("Ответим в течение 2 часов · Без обязательств · NDA по запросу")
+  heroVideoUrl        String @default("")
+  heroVideoUrlLight   String @default("")
+  statValue       String @default("70+")
+  statText        String @default("успешных проектов за 5 лет работы")
+  footerCopyright String @default("© 2026 Studio. Все права защищены.")
+  phones          String @default("[\"+7 (999) 123-45-67\"]")
+  emails          String @default("[\"hello@studio.ru\"]")
+  addresses       String @default("[\"Москва, ул. Примерная, 1\"]")
+  socialLinks     String @default("[{\"label\":\"Telegram\",\"url\":\"https://t.me\"}]")
+  sectionSpacing  String @default("{}")
+  buttonLabels    String @default("{}")
+}
+
+model HeroFeature {
+  id        Int     @id @default(autoincrement())
+  title     String
+  subtitle  String?
+  icon      String  @default("sparkles")
+  variant   String  @default("default")
+  sortOrder Int     @default(0)
+  imageUrl  String?
+}
+
+model Project {
+  id                 Int     @id @default(autoincrement())
+  title              String
+  description        String
+  cardTitle          String  @default("")
+  cardDescription    String  @default("")
+  pageTitle          String  @default("")
+  pageDescription    String  @default("")
+  body               String  @default("")
+  gallery            String  @default("[]")
+  imageUrl           String
+  projectCardImageUrl String @default("")
+  projectPageImageUrl String @default("")
+  link               String?
+  sortOrder          Int     @default(0)
+  landingHeroMeta    String  @default("")
+  landingMetrics     String  @default("[]")
+  challengeTitle     String  @default("Задача проекта")
+  challengeText      String  @default("")
+  solutionTitle      String  @default("Наше решение")
+  solutionText       String  @default("")
+  benefitsTitle      String  @default("Преимущества проекта")
+  benefitsItems      String  @default("[]")
+  howItWorksTitle    String  @default("Как мы реализовали")
+  howItWorksSteps    String  @default("[]")
+  scopeTitle         String  @default("Что было сделано")
+  scopeItems         String  @default("[]")
+  resultsTitle       String  @default("Результат для бизнеса")
+  resultsText        String  @default("")
+  storyTitle         String  @default("О проекте")
+  testimonialQuote   String  @default("")
+  testimonialAuthor  String  @default("")
+  testimonialRole    String  @default("")
+  ctaTitle           String  @default("Хотите такой же проект?")
+  ctaSubtitle        String  @default("Подготовим план и оценку по срокам и бюджету в течение 24 часов.")
+  coverFocusX        Int     @default(50)
+  coverFocusY        Int     @default(50)
+  projectPageFocusX  Int     @default(50)
+  projectPageFocusY  Int     @default(50)
+}
+
+model CaseStudy {
+  id                 Int     @id @default(autoincrement())
+  tag                String
+  title              String
+  description        String
+  body               String  @default("")
+  gallery            String  @default("[]")
+  imageUrl           String
+  link               String?
+  sortOrder          Int     @default(0)
+  landingHeroMeta    String  @default("")
+  landingMetrics     String  @default("[]")
+  challengeTitle     String  @default("Задача клиента")
+  challengeText      String  @default("")
+  solutionTitle      String  @default("Наше решение")
+  solutionText       String  @default("")
+  benefitsTitle      String  @default("Преимущества продукта")
+  benefitsItems      String  @default("[]")
+  howItWorksTitle    String  @default("Как мы это сделали")
+  howItWorksSteps    String  @default("[]")
+  scopeTitle         String  @default("Что входит в решение")
+  scopeItems         String  @default("[]")
+  resultsTitle       String  @default("Результат для бизнеса")
+  resultsText        String  @default("")
+  storyTitle         String  @default("О проекте")
+  testimonialQuote   String  @default("")
+  testimonialAuthor  String  @default("")
+  testimonialRole    String  @default("")
+  ctaTitle           String  @default("Хотите такой же результат?")
+  ctaSubtitle        String  @default("Обсудим вашу задачу и предложим план с оценкой сроков и бюджета за 24 часа.")
+}
+
+model Service {
+  id          Int     @id @default(autoincrement())
+  icon        String  @default("layout")
+  title       String
+  description String?
+  sortOrder   Int     @default(0)
+}
+
+model MarketplaceApp {
+  id          Int     @id @default(autoincrement())
+  title       String
+  description String
+  imageUrl    String  @default("")
+  priceLabel  String  @default("от 0 ₽/мес")
+  badge       String  @default("")
+  category    String  @default("ready")
+  icon        String  @default("layout")
+  features    String  @default("[]")
+  featured    Boolean @default(false)
+  published   Boolean @default(true)
+  sortOrder   Int     @default(0)
+}
+
+model Faq {
+  id        Int    @id @default(autoincrement())
+  question  String
+  answer    String
+  sortOrder Int    @default(0)
+}
+
+model ContactSubmission {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  phone     String @default("")
+  message   String
+  createdAt DateTime @default(now())
+  read      Boolean  @default(false)
+}
+
+model AdminUser {
+  id           Int    @id @default(autoincrement())
+  username     String @unique
+  passwordHash String
+}
