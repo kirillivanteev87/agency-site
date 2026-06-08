@@ -1454,14 +1454,13 @@ html[data-theme="light"] .stats-card.card-interactive:hover {
   .pricing-card__outcome {
     grid-row: 4;
     align-self: start;
-    margin-top: 0.65rem;
   }
 
   .pricing-card__features {
     grid-row: 5;
     align-self: start;
     flex: none;
-    margin-top: 0.65rem;
+    margin-top: 0;
   }
 
   .pricing-card__cta {
@@ -1493,7 +1492,6 @@ html[data-theme="light"] .stats-card.card-interactive:hover {
 
     .pricing-card__price-block,
     .pricing-card__audience,
-    .pricing-card__outcome,
     .pricing-card__features,
     .pricing-card__cta {
       margin-top: 0;
@@ -1631,14 +1629,7 @@ html[data-theme="light"] .pricing-card--featured {
   color: color-mix(in srgb, var(--text-muted) 85%, transparent);
 }
 
-@media (max-width: 767px) {
-  .pricing-card__outcome {
-    margin-block: -0.7rem;
-  }
-}
-
-.pricing-card__audience,
-.pricing-card__outcome {
+.pricing-card__audience {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
@@ -1648,10 +1639,24 @@ html[data-theme="light"] .pricing-card--featured {
 }
 
 .pricing-card__outcome {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-top: 0.65rem;
+  margin-bottom: 0.65rem;
+  font-size: 0.8125rem;
+  line-height: 1.45;
   padding: 0.65rem 0.75rem;
   border-radius: calc(var(--radius) - 6px);
   border: 1px solid color-mix(in srgb, var(--accent) 14%, var(--border));
   background: color-mix(in srgb, var(--accent) 5%, var(--bg-card));
+}
+
+@media (max-width: 767px) {
+  .pricing-card__outcome {
+    margin-top: calc(0.65rem - 1.35rem);
+    margin-bottom: calc(0.65rem - 1.35rem);
+  }
 }
 
 html[data-theme="light"] .pricing-card__outcome {
