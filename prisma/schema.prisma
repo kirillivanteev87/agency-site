@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -12,21 +12,77 @@ model SiteSettings {
   brandName       String @default("STUDIO")
   brandHighlightText  String @default("")
   brandHighlightColor String @default("")
+  logoMode        String @default("image")
+  logoImageUrl    String @default("/images/qnox-logo.png")
   heroTitle       String @default("Создаём цифровые продукты")
   heroHighlight   String @default("которые работают")
   heroSubtitle    String @default("Веб-студия полного цикла: дизайн, разработка, продвижение")
   heroMeta        String @default("Ответим в течение 2 часов · Без обязательств · NDA по запросу")
+  heroBenefit1    String @default("Рост заявок и продаж")
+  heroBenefit2    String @default("Сроки и бюджет в договоре")
+  heroBenefit3    String @default("Поддержка после запуска")
   heroVideoUrl        String @default("")
   heroVideoUrlLight   String @default("")
   statValue       String @default("70+")
   statText        String @default("успешных проектов за 5 лет работы")
-  footerCopyright String @default("© 2026 Studio. Все права защищены.")
+  footerCopyright  String @default("© 2026 Studio. Все права защищены.")
+  footerDescriptor String @default("Студия цифровых продуктов: SaaS, AI и веб-платформы.")
+  footerBehanceUrl String @default("")
+  footerGithubUrl  String @default("")
   phones          String @default("[\"+7 (999) 123-45-67\"]")
   emails          String @default("[\"hello@studio.ru\"]")
   addresses       String @default("[\"Москва, ул. Примерная, 1\"]")
   socialLinks     String @default("[{\"label\":\"Telegram\",\"url\":\"https://t.me\"}]")
   sectionSpacing  String @default("{}")
   buttonLabels    String @default("{}")
+  pricingEyebrow   String @default("Тарифы")
+  pricingTitle     String @default("Прозрачные пакеты под вашу задачу")
+  pricingSubtitle  String @default("Фиксированная стоимость старта — без скрытых строк. Точную смету уточним после брифа и созвона.")
+  pricingNote      String @default("Цены указаны за типовой объём. Нестандартный функционал, контент и интеграции считаем отдельно — смета за 20 минут после брифа.")
+  contactEyebrow           String @default("Следующий шаг")
+  contactTitle             String @default("Получите расчёт проекта за 24 часа")
+  contactSubtitle          String @default("Опишите задачу — предложим формат, сроки и ориентир по бюджету. Перезвоним в течение 2 часов в рабочее время.")
+  contactBullet1           String @default("Бесплатная консультация")
+  contactBullet2           String @default("NDA по запросу")
+  contactBullet3           String @default("Без навязчивых продаж")
+  contactLabelPhone        String @default("Телефон")
+  contactLabelEmail        String @default("Email")
+  contactLabelAddress      String @default("Адрес")
+  contactWhatsappUrl       String @default("https://wa.me")
+  contactWhatsappLabel     String @default("WhatsApp")
+  contactWhatsappLinkText  String @default("WhatsApp")
+  contactTelegramUrl       String @default("https://t.me")
+  contactTelegramLabel     String @default("Telegram")
+  contactTelegramLinkText  String @default("Telegram")
+  contactMaxUrl            String @default("https://max.ru")
+  contactMaxLabel          String @default("MAX")
+  contactMaxLinkText       String @default("MAX")
+  contactFormTitle         String @default("Заявка")
+  contactFormLead          String @default("Заполните форму — менеджер свяжется с вами и предложит решение под вашу задачу.")
+  contactNameLabel         String @default("Имя")
+  contactNamePlaceholder   String @default("Как к вам обращаться")
+  contactEmailLabel        String @default("Email")
+  contactEmailPlaceholder  String @default("name@company.ru")
+  contactPhoneLabel        String @default("Телефон")
+  contactPhonePlaceholder  String @default("+7 (999) 123-45-67")
+  contactMessageLabel      String @default("Что нужно сделать?")
+  contactMessagePlaceholder String @default("Кратко опишите проект, сроки и бюджет (если есть)")
+  contactSuccessMessage    String @default("Заявка принята! Мы свяжемся с вами в ближайшие 2 часа в рабочее время.")
+  contactConsentText       String @default("Нажимая кнопку, вы соглашаетесь на обработку персональных данных.")
+}
+
+model PricingPlan {
+  id            Int     @id @default(autoincrement())
+  name          String
+  eyebrow       String  @default("")
+  summary       String  @default("")
+  audienceLabel String  @default("")
+  outcomeText   String  @default("")
+  price         String
+  features      String  @default("[]")
+  featured      Boolean @default(false)
+  badgeLabel    String  @default("")
+  sortOrder     Int     @default(0)
 }
 
 model HeroFeature {
@@ -45,6 +101,7 @@ model Project {
   description        String
   cardTitle          String  @default("")
   cardDescription    String  @default("")
+  cardResultText     String  @default("")
   pageTitle          String  @default("")
   pageDescription    String  @default("")
   body               String  @default("")

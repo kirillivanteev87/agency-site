@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { blobToFile } from "@/lib/crop-image";
+import { blobToFile, PROJECT_GALLERY_ASPECT } from "@/lib/crop-image";
 import {
   parseLandingBenefits,
   parseLandingSteps,
@@ -11,6 +11,7 @@ import {
   type LandingBenefit,
   type LandingStep,
 } from "@/lib/project-landing";
+import { parseProjectGalleryItems, serializeProjectGallery, type ProjectGalleryItem } from "@/lib/project-gallery";
 import { AdminCardListEditor, AdminGalleryEditor, AdminStringListEditor } from "./AdminListEditors";
 import { ImageCropDialog } from "./ImageCropDialog";
 
@@ -72,6 +73,7 @@ export function ProjectEditor({ mode, item, onSave, onDelete, onUpload }: Projec
 
   const [cardTitle, setCardTitle] = useState("");
   const [cardDescription, setCardDescription] = useState("");
+  const [cardResultText, setCardResultText] = useState("");
   const [pageTitle, setPageTitle] = useState("");
   const [pageDescription, setPageDescription] = useState("");
   const [imageUrl, setImageUrl] = useState("");
@@ -106,7 +108,7 @@ export function ProjectEditor({ mode, item, onSave, onDelete, onUpload }: Projec
 
   const [storyTitle, setStoryTitle] = useState("");
   const [body, setBody] = useState("");
-  const [gallery, setGallery] = useState<string[]>([]);
+  const [gallery, setGallery] = useState<ProjectGalleryItem[]>([]);
 
   const [testimonialQuote, setTestimonialQuote] = useState("");
   const [testimonialAuthor, setTestimonialAuthor] = useState("");
@@ -120,6 +122,7 @@ export function ProjectEditor({ mode, item, onSave, onDelete, onUpload }: Projec
   useEffect(() => {
     setCardTitle(String(item.cardTitle ?? item.title ?? ""));
     setCardDescription(String(item.cardDescription ?? item.description ?? ""));
+    setCardResultText(String(item.cardResultText ?? ""));
     setPageTitle(String(item.pageTitle ?? item.title ?? ""));
     setPageDescription(String(item.pageDescription ?? item.description ?? ""));
     setImageUrl(String(item.imageUrl ?? ""));
@@ -154,7 +157,7 @@ export function ProjectEditor({ mode, item, onSave, onDelete, onUpload }: Projec
 
     setStoryTitle(String(item.storyTitle ?? "О проекте"));
     setBody(String(item.body ?? ""));
-    setGallery(parseScopeItems(String(item.gallery ?? "[]")));
+    setGallery(parseProjectGalleryItems(String(item.gallery ?? "[]")));
 
     setTestimonialQuote(String(item.testimonialQuote ?? ""));
     setTestimonialAuthor(String(item.testimonialAuthor ?? ""));
@@ -186,6 +189,7 @@ export function ProjectEditor({ mode, item, onSave, onDelete, onUpload }: Projec
     return {
       cardTitle: cardTitle.trim(),
       cardDescription: cardDescription.trim(),
+      cardResultText: cardResultText.trim(),
       imageUrl: imageUrl.trim(),
       projectCardImageUrl: projectCardImageUrl.trim(),
       link: link.trim() || null,
@@ -204,7 +208,7 @@ export function ProjectEditor({ mode, item, onSave, onDelete, onUpload }: Projec
     const cleanSteps = steps
       .map((s) => ({ title: s.title.trim(), text: s.text.trim() }))
       .filter((s) => s.title);
-    const cleanGallery = gallery.filter(Boolean);
+    const cleanGallery = gallery.filter((g) => g.displayUrl);
 
     return {
       pageTitle: pageTitle.trim(),
@@ -228,7 +232,7 @@ export function ProjectEditor({ mode, item, onSave, onDelete, onUpload }: Projec
       resultsText: resultsText.trim(),
       storyTitle: storyTitle.trim(),
       body: body.trim(),
-      gallery: JSON.stringify(cleanGallery),
+      gallery: serializeProjectGallery(cleanGallery),
       testimonialQuote: testimonialQuote.trim(),
       testimonialAuthor: testimonialAuthor.trim(),
       testimonialRole: testimonialRole.trim(),
@@ -291,8 +295,14 @@ export function ProjectEditor({ mode, item, onSave, onDelete, onUpload }: Projec
             <Field label="Заголовок карточки">
               <input value={cardTitle} onChange={(e) => setCardTitle(e.target.value)} />
             </Field>
-            <Field label="Описание на карточке">
+            <Field label="Описание">
               <textarea rows={3} value={cardDescription} onChange={(e) => setCardDescription(e.target.value)} />
+            </Field>
+            <Field
+              label="Результат"
+              hint="Каждая строка — отдельная строка на карточке. На сайте отображается с заголовком «Результат:»"
+            >
+              <textarea rows={3} value={cardResultText} onChange={(e) => setCardResultText(e.target.value)} />
             </Field>
             <div className="space-y-4 border-t border-[var(--border)] pt-4">
               <div className="space-y-2">
@@ -503,11 +513,11 @@ export function ProjectEditor({ mode, item, onSave, onDelete, onUpload }: Projec
           </Field>
           <AdminGalleryEditor
             label="Фото галереи"
-            hint="Дополнительные фото для блока «О проекте»"
-            urls={gallery}
+            hint="Обложка страницы всегда первое фото в блоке «О проекте». Здесь — дополнительные кадры для переключения. В полноэкранном просмотре открывается оригинал до обрезки."
+            items={gallery}
             onChange={setGallery}
             onUpload={onUpload}
-            cropAspect={PROJECT_COVER_ASPECT}
+            cropAspect={PROJECT_GALLERY_ASPECT}
           />
         </Section>
 

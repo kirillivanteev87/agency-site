@@ -1,8 +1,9 @@
 "use client";
 
-import { Trash2 } from "lucide-react";
+import { Download, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { adminFetchJson } from "@/lib/admin-fetch-json";
+import { isBriefSubmission } from "@/lib/brief-submission";
 import {
   isAiChatSubmission,
   parseAiChatTranscript,
@@ -56,6 +57,7 @@ export function SubmissionsInbox({ items, onRefresh, onUnreadRefresh }: Props) {
   const [selectedId, setSelectedId] = useState<number | null>(items[0]?.id ?? null);
   const [checkedIds, setCheckedIds] = useState<Set<number>>(() => new Set());
   const [deleting, setDeleting] = useState(false);
+  const [downloadingDocx, setDownloadingDocx] = useState(false);
   const [error, setError] = useState("");
 
   const selected = useMemo(
@@ -104,6 +106,45 @@ export function SubmissionsInbox({ items, onRefresh, onUnreadRefresh }: Props) {
       return new Set(items.map((i) => i.id));
     });
   }, [items]);
+
+  const downloadBriefDocx = useCallback(async (row: SubmissionRow) => {
+    setDownloadingDocx(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/admin/submissions/${row.id}/docx`, {
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const text = await res.text();
+        let message = `Ошибка ${res.status}`;
+        try {
+          const body = JSON.parse(text) as { error?: string };
+          if (body.error) message = body.error;
+        } catch {
+          if (text) message = text;
+        }
+        throw new Error(message);
+      }
+      const blob = await res.blob();
+      const disposition = res.headers.get("Content-Disposition") ?? "";
+      const utfMatch = disposition.match(/filename\*=UTF-8''([^;]+)/i);
+      const plainMatch = disposition.match(/filename="([^"]+)"/i);
+      const filename = utfMatch
+        ? decodeURIComponent(utfMatch[1])
+        : plainMatch?.[1] ?? `Brief_${row.id}.docx`;
+
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = filename;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Не удалось скачать DOCX");
+    } finally {
+      setDownloadingDocx(false);
+    }
+  }, []);
 
   const deleteByIds = useCallback(
     async (ids: number[]) => {
@@ -180,6 +221,7 @@ export function SubmissionsInbox({ items, onRefresh, onUnreadRefresh }: Props) {
         <ul className="admin-inbox-items">
           {items.map((row) => {
             const isAi = isAiChatSubmission(row.message);
+            const isBrief = isBriefSubmission(row.message);
             const active = row.id === selectedId;
             const checked = checkedIds.has(row.id);
             return (
@@ -203,6 +245,7 @@ export function SubmissionsInbox({ items, onRefresh, onUnreadRefresh }: Props) {
                   <span className="admin-inbox-item-date">{formatDate(row.createdAt)}</span>
                   <span className="admin-inbox-item-row">
                     <span className="admin-inbox-item-name">{row.name}</span>
+                    {isBrief ? <span className="admin-brief-badge">Бриф</span> : null}
                     {isAi ? <span className="admin-ai-badge">AI Chat</span> : null}
                   </span>
                   <span className="admin-inbox-item-phone">{row.phone?.trim() || "—"}</span>
@@ -220,6 +263,9 @@ export function SubmissionsInbox({ items, onRefresh, onUnreadRefresh }: Props) {
               <div>
                 <p className="admin-inbox-detail-name">
                   {selected.name}
+                  {isBriefSubmission(selected.message) ? (
+                    <span className="admin-brief-badge admin-brief-badge--inline">Бриф</span>
+                  ) : null}
                   {isAiChatSubmission(selected.message) ? (
                     <span className="admin-ai-badge admin-ai-badge--inline">AI Chat</span>
                   ) : null}
@@ -237,10 +283,21 @@ export function SubmissionsInbox({ items, onRefresh, onUnreadRefresh }: Props) {
                     {selected.email?.trim() && selected.email !== "—" ? selected.email : "—"}
                   </p>
                 </div>
+                {isBriefSubmission(selected.message) ? (
+                  <button
+                    type="button"
+                    className="admin-inbox-download-btn admin-inbox-download-btn--solo"
+                    disabled={deleting || downloadingDocx}
+                    onClick={() => void downloadBriefDocx(selected)}
+                  >
+                    <Download size={16} aria-hidden />
+                    {downloadingDocx ? "Скачивание…" : "Скачать DOCX"}
+                  </button>
+                ) : null}
                 <button
                   type="button"
                   className="admin-inbox-delete-btn admin-inbox-delete-btn--solo"
-                  disabled={deleting}
+                  disabled={deleting || downloadingDocx}
                   onClick={() => void deleteByIds([selected.id])}
                 >
                   <Trash2 size={16} aria-hidden />
@@ -252,6 +309,15 @@ export function SubmissionsInbox({ items, onRefresh, onUnreadRefresh }: Props) {
             <div className="admin-inbox-detail-body">
               {isAiChatSubmission(selected.message) ? (
                 <ChatThread turns={selectedTurns} />
+              ) : isBriefSubmission(selected.message) ? (
+                <div className="admin-inbox-plain">
+                  <p className="mb-3 text-xs text-[var(--text-muted)]">
+                    Структурированный бриф — скачайте DOCX для передачи в работу или архив.
+                  </p>
+                  <pre className="admin-inbox-brief-preview whitespace-pre-wrap text-sm leading-relaxed">
+                    {selected.message}
+                  </pre>
+                </div>
               ) : (
                 <div className="admin-inbox-plain">
                   <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">

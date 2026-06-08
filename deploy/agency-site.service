@@ -1,0 +1,26 @@
+# systemd unit: /etc/systemd/system/agency-site.service
+# sudo systemctl daemon-reload && sudo systemctl enable --now agency-site
+
+[Unit]
+Description=Agency Site (Next.js)
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/agency-site
+EnvironmentFile=/var/www/agency-site/.env
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/node node_modules/next/dist/bin/next start -H 127.0.0.1 -p 3000
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=agency-site
+
+# SQLite + uploads
+ReadWritePaths=/var/www/agency-site/data /var/www/agency-site/public/uploads /var/www/agency-site/public/video
+
+[Install]
+WantedBy=multi-user.target

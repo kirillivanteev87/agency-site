@@ -1,5 +1,5 @@
 import { parseJsonArray } from "./parse-json";
-import { buildDetailPhotos } from "./project-gallery";
+import { buildDetailPhotos, type DetailPhoto } from "./project-gallery";
 import type { Project } from "@prisma/client";
 
 export type LandingBenefit = { title: string; text: string };
@@ -7,7 +7,7 @@ export type LandingStep = { title: string; text: string };
 
 export type ProjectLandingView = Project & {
   metrics: string[];
-  photos: string[];
+  photos: DetailPhoto[];
   scopeItemsList: string[];
   benefitsList: LandingBenefit[];
   stepsList: LandingStep[];
@@ -96,7 +96,7 @@ function resolveDisplayTexts(project: Project): ProjectLandingView["display"] {
   const lead = getProjectPageDescription(project);
   const pageTitle = getProjectPageTitle(project);
   return {
-    heroMeta: project.landingHeroMeta.trim() || "Проект REDLINE · Под ключ · От идеи до результата",
+    heroMeta: project.landingHeroMeta.trim() || "Проект QNOX · Под ключ · От идеи до результата",
     challengeText:
       project.challengeText.trim() ||
       `Нужно было реализовать проект «${pageTitle}» так, чтобы он приносил бизнес-результат, а не только визуальный эффект. ${lead}`,
@@ -118,6 +118,19 @@ export function getProjectCardTitle(project: Pick<Project, "cardTitle" | "title"
 
 export function getProjectCardDescription(project: Pick<Project, "cardDescription" | "description">): string {
   return project.cardDescription.trim() || project.description;
+}
+
+export function getProjectCardResultText(project: Pick<Project, "cardResultText">): string {
+  return (project.cardResultText ?? "").trim();
+}
+
+export const WEB_GURU_AWARD_BADGE_URL = "/images/web-guru-award.webp";
+
+export function getProjectAwardBadgeUrl(project: Pick<Project, "cardTitle" | "title">): string | null {
+  if (getProjectCardTitle(project).includes("Скульпториум")) {
+    return WEB_GURU_AWARD_BADGE_URL;
+  }
+  return null;
 }
 
 export function getProjectPageTitle(project: Pick<Project, "pageTitle" | "title">): string {
@@ -163,6 +176,7 @@ export function normalizeProjectRow(project: Project): Project {
     projectPageImageUrl: project.projectPageImageUrl ?? baseImage,
     cardTitle: project.cardTitle ?? "",
     cardDescription: project.cardDescription ?? "",
+    cardResultText: project.cardResultText ?? "",
     pageTitle: project.pageTitle ?? "",
     pageDescription: project.pageDescription ?? "",
   };
@@ -194,6 +208,7 @@ export function getProjectLandingByProject(project: Project): ProjectLandingView
 export const PROJECT_LANDING_DEFAULTS = {
   cardTitle: "",
   cardDescription: "",
+  cardResultText: "",
   pageTitle: "",
   pageDescription: "",
   landingHeroMeta: "",

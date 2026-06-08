@@ -1,7 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "prisma generate && prisma migrate deploy && next build",
   "functions": {
     "src/app/api/upload/route.ts": {
+      "maxDuration": 120
+    },
+    "src/app/api/admin/hero-video/route.ts": {
       "maxDuration": 120
     }
   }

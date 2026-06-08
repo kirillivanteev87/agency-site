@@ -8,6 +8,7 @@ type Resource =
   | "case-studies"
   | "services"
   | "faqs"
+  | "pricing-plans"
   | "hero-features"
   | "marketplace-apps"
   | "submissions";
@@ -17,6 +18,7 @@ const models: Record<Resource, keyof typeof prisma> = {
   "case-studies": "caseStudy",
   services: "service",
   faqs: "faq",
+  "pricing-plans": "pricingPlan",
   "hero-features": "heroFeature",
   "marketplace-apps": "marketplaceApp",
   submissions: "contactSubmission",

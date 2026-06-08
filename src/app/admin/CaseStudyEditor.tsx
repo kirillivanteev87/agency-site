@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { blobToFile, CASE_COVER_ASPECT } from "@/lib/crop-image";
+import { blobToFile, CASE_COVER_ASPECT, PROJECT_GALLERY_ASPECT } from "@/lib/crop-image";
 import {
   parseLandingBenefits,
   parseLandingSteps,
@@ -11,6 +11,7 @@ import {
   type LandingStep,
 } from "@/lib/case-study-landing";
 import { parseJsonArray } from "@/lib/parse-json";
+import { parseProjectGalleryItems, serializeProjectGallery, type ProjectGalleryItem } from "@/lib/project-gallery";
 import { AdminCardListEditor, AdminGalleryEditor, AdminStringListEditor } from "./AdminListEditors";
 import { ImageCropDialog } from "./ImageCropDialog";
 
@@ -93,7 +94,7 @@ export function CaseStudyEditor({ item, onSave, onDelete, onUpload }: CaseStudyE
 
   const [storyTitle, setStoryTitle] = useState("");
   const [body, setBody] = useState("");
-  const [gallery, setGallery] = useState<string[]>([]);
+  const [gallery, setGallery] = useState<ProjectGalleryItem[]>([]);
 
   const [testimonialQuote, setTestimonialQuote] = useState("");
   const [testimonialAuthor, setTestimonialAuthor] = useState("");
@@ -134,7 +135,7 @@ export function CaseStudyEditor({ item, onSave, onDelete, onUpload }: CaseStudyE
 
     setStoryTitle(String(item.storyTitle ?? "О проекте"));
     setBody(String(item.body ?? ""));
-    setGallery(parseJsonArray<string>(String(item.gallery ?? "[]"), []).filter(Boolean));
+    setGallery(parseProjectGalleryItems(String(item.gallery ?? "[]")));
 
     setTestimonialQuote(String(item.testimonialQuote ?? ""));
     setTestimonialAuthor(String(item.testimonialAuthor ?? ""));
@@ -170,7 +171,7 @@ export function CaseStudyEditor({ item, onSave, onDelete, onUpload }: CaseStudyE
     const cleanSteps = steps
       .map((s) => ({ title: s.title.trim(), text: s.text.trim() }))
       .filter((s) => s.title);
-    const cleanGallery = gallery.filter(Boolean);
+    const cleanGallery = gallery.filter((g) => g.displayUrl);
 
     return {
       tag: tag.trim(),
@@ -195,7 +196,7 @@ export function CaseStudyEditor({ item, onSave, onDelete, onUpload }: CaseStudyE
       resultsText: resultsText.trim(),
       storyTitle: storyTitle.trim(),
       body: body.trim(),
-      gallery: JSON.stringify(cleanGallery),
+      gallery: serializeProjectGallery(cleanGallery),
       testimonialQuote: testimonialQuote.trim(),
       testimonialAuthor: testimonialAuthor.trim(),
       testimonialRole: testimonialRole.trim(),
@@ -384,11 +385,11 @@ export function CaseStudyEditor({ item, onSave, onDelete, onUpload }: CaseStudyE
           </Field>
           <AdminGalleryEditor
             label="Дополнительные фото галереи"
-            hint="Обложка выше всегда первое фото. Здесь — дополнительные кадры для переключения в блоке «О проекте»."
-            urls={gallery}
+            hint="Обложка выше всегда первое фото. Здесь — дополнительные кадры для переключения. В полноэкранном просмотре — оригинал до обрезки."
+            items={gallery}
             onChange={setGallery}
             onUpload={onUpload}
-            cropAspect={CASE_COVER_ASPECT}
+            cropAspect={PROJECT_GALLERY_ASPECT}
           />
         </Section>
 

@@ -1,0 +1,36 @@
+export const DEFAULT_CONTACT_SECTION = {
+  contactEyebrow: "Следующий шаг",
+  contactTitle: "Получите расчёт проекта за 24 часа",
+  contactSubtitle:
+    "Опишите задачу — предложим формат, сроки и ориентир по бюджету. Перезвоним в течение 2 часов в рабочее время.",
+  contactBullet1: "Бесплатная консультация",
+  contactBullet2: "NDA по запросу",
+  contactBullet3: "Без навязчивых продаж",
+  contactLabelPhone: "Телефон",
+  contactLabelEmail: "Email",
+  contactLabelAddress: "Адрес",
+  contactWhatsappUrl: "https://wa.me",
+  contactWhatsappLabel: "WhatsApp",
+  contactWhatsappLinkText: "Написать в WhatsApp",
+  contactTelegramUrl: "https://t.me",
+  contactTelegramLabel: "Telegram",
+  contactTelegramLinkText: "@username",
+  contactMaxUrl: "https://max.ru",
+  contactMaxLabel: "MAX",
+  contactMaxLinkText: "Написать в MAX",
+  contactFormTitle: "Заявка",
+  contactFormLead: "Заполните форму — менеджер свяжется с вами и предложит решение под вашу задачу.",
+  contactNameLabel: "Имя",
+  contactNamePlaceholder: "Как к вам обращаться",
+  contactEmailLabel: "Email",
+  contactEmailPlaceholder: "name@company.ru",
+  contactPhoneLabel: "Телефон",
+  contactPhonePlaceholder: "+7 (999) 123-45-67",
+  contactMessageLabel: "Что нужно сделать?",
+  contactMessagePlaceholder: "Кратко опишите проект, сроки и бюджет (если есть)",
+  contactSuccessMessage:
+    "Заявка принята! Мы свяжемся с вами в ближайшие 2 часа в рабочее время.",
+  contactConsentText: "Нажимая кнопку, вы соглашаетесь на обработку персональных данных.",
+} as const;
+
+export type ContactSectionCopy = typeof DEFAULT_CONTACT_SECTION;

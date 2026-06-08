@@ -90,6 +90,7 @@ export function ProjectsContentEditor({ mode }: Props) {
           description: "",
           cardTitle: "Новый проект",
           cardDescription: "",
+          cardResultText: "",
           pageTitle: "Новый проект",
           pageDescription: "",
           body: "",

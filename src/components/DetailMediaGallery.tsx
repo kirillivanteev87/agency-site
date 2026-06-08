@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ProjectImageLightbox } from "./ProjectImageLightbox";
 import { SiteImage } from "./SiteImage";
+import type { DetailPhoto } from "@/lib/project-gallery";
 
 const MAIN_SWIPE_PX = 48;
 
@@ -11,7 +12,7 @@ export function DetailMediaGallery({
   alt,
   resetKey,
 }: {
-  photos: string[];
+  photos: DetailPhoto[];
   alt: string;
   /** При смене сущности сбрасываем активный кадр */
   resetKey?: string | number;
@@ -28,7 +29,7 @@ export function DetailMediaGallery({
   }, [resetKey]);
 
   const safeActive = photos.length === 0 ? 0 : Math.min(activeIndex, photos.length - 1);
-  const mainSrc = photos[safeActive] ?? "";
+  const mainSrc = photos[safeActive]?.displayUrl ?? "";
 
   useEffect(() => {
     thumbBtnRefs.current[safeActive]?.scrollIntoView({
@@ -88,9 +89,9 @@ export function DetailMediaGallery({
 
       {photos.length > 1 && (
         <div className="flex snap-x snap-mandatory gap-2 overflow-x-auto scroll-smooth pb-1 [scrollbar-width:thin] [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[var(--border)] [&::-webkit-scrollbar-track]:bg-transparent">
-          {photos.map((url, i) => (
+          {photos.map((photo, i) => (
             <button
-              key={`${url}-${i}`}
+              key={`${photo.displayUrl}-${i}`}
               type="button"
               ref={(el) => {
                 thumbBtnRefs.current[i] = el;
@@ -106,7 +107,7 @@ export function DetailMediaGallery({
               }`}
               aria-label={`Фото ${i + 1}, открыть просмотр`}
             >
-              <SiteImage src={url} alt="" fill className="object-cover" />
+              <SiteImage src={photo.displayUrl} alt="" fill className="object-cover" />
             </button>
           ))}
         </div>
@@ -114,7 +115,7 @@ export function DetailMediaGallery({
 
       {lightboxIndex !== null && (
         <ProjectImageLightbox
-          urls={photos}
+          photos={photos}
           startIndex={lightboxIndex}
           onClose={() => setLightboxIndex(null)}
           onIndexChange={setActiveIndex}

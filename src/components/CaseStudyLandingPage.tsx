@@ -90,7 +90,7 @@ export function CaseStudyLandingPage({
                   </div>
                   <div className="case-landing__cover-caption">
                     <strong>{data.tag}</strong>
-                    <span>Продуктовый кейс REDLINE</span>
+                    <span>Продуктовый кейс QNOX</span>
                   </div>
                 </div>
               </div>

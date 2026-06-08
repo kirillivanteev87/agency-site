@@ -1,6 +1,22 @@
 /** Соотношение сторон обложки кейса на главной (aspect-[4/3]) */
 export const CASE_COVER_ASPECT = 4 / 3;
 
+/** Соотношение фото в блоке «О проекте» на странице проекта/кейса */
+export const PROJECT_GALLERY_ASPECT = CASE_COVER_ASPECT;
+
+const ASPECT_LABELS: [number, string][] = [
+  [16 / 10, "16∶10"],
+  [4 / 3, "4∶3"],
+  [1, "1∶1"],
+];
+
+export function formatCropAspectLabel(aspect: number): string {
+  for (const [value, label] of ASPECT_LABELS) {
+    if (Math.abs(aspect - value) < 0.01) return label;
+  }
+  return aspect.toFixed(2).replace(".", "∶");
+}
+
 export type CropArea = {
   x: number;
   y: number;

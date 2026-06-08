@@ -110,6 +110,7 @@ function ConversionHeroGraphic({
         </defs>
 
         <circle
+          className="hero-highlight-visual-ring-track"
           cx="110"
           cy="110"
           r="88"
@@ -142,8 +143,9 @@ function ConversionHeroGraphic({
           transition={{ delay: 0.35, duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
         />
 
-        <circle cx="110" cy="110" r="62" fill="rgba(255, 255, 255, 0.025)" />
+        <circle className="hero-highlight-visual-ring-inner" cx="110" cy="110" r="62" fill="rgba(255, 255, 255, 0.025)" />
         <circle
+          className="hero-highlight-visual-ring-inner-stroke"
           cx="110"
           cy="110"
           r="62"
@@ -158,16 +160,6 @@ function ConversionHeroGraphic({
         <span className="hero-highlight-visual-value">28</span>
         <span className="hero-highlight-visual-pct">%</span>
       </div>
-
-      <motion.div
-        className="hero-highlight-visual-chip hero-highlight-visual-chip--days"
-        initial={hideEntrance ? false : { opacity: 0, y: 8 }}
-        whileInView={hideEntrance ? undefined : { opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ delay: 0.78, duration: 0.5 }}
-      >
-        90 дней
-      </motion.div>
 
       <div className="hero-highlight-visual-glow" aria-hidden />
       </motion.div>
@@ -247,13 +239,15 @@ export function HeroHighlightBlock({ imageUrl }: Props) {
             })}
       >
         <div className="hero-highlight-glass-shine" aria-hidden />
-        <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-white/50">Рост конверсии</p>
+        <p className="hero-highlight-glass-label text-[10px] font-medium uppercase tracking-[0.14em]">
+          Рост конверсии
+        </p>
         <GrowthChart uid={chartUid} />
-        <p className="mt-1 text-xs font-semibold text-white/85">+28% за 90 дней</p>
+        <p className="hero-highlight-glass-stat mt-1 text-xs font-semibold">+28% за 90 дней</p>
       </motion.div>
 
       <div className="hero-highlight-copy">
-        <p className="text-sm text-white/65">Средний рост конверсии клиентов</p>
+        <p className="hero-highlight-copy-lead text-sm">Средний рост конверсии клиентов</p>
         <p className="hero-highlight-stat mt-1">+28% после редизайна</p>
       </div>
     </motion.div>

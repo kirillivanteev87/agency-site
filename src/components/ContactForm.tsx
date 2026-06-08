@@ -2,10 +2,30 @@
 
 import { Check } from "lucide-react";
 import { FormEvent, useState } from "react";
-import type { ButtonLabels } from "@/lib/site-data";
 import { DEFAULT_BUTTON_LABELS } from "@/lib/button-labels";
+import type { SiteSettingsView } from "./types";
 
-export function ContactForm({ buttonLabels = DEFAULT_BUTTON_LABELS }: { buttonLabels?: ButtonLabels }) {
+type Props = {
+  settings: Pick<
+    SiteSettingsView,
+    | "buttonLabels"
+    | "contactFormTitle"
+    | "contactFormLead"
+    | "contactNameLabel"
+    | "contactNamePlaceholder"
+    | "contactEmailLabel"
+    | "contactEmailPlaceholder"
+    | "contactPhoneLabel"
+    | "contactPhonePlaceholder"
+    | "contactMessageLabel"
+    | "contactMessagePlaceholder"
+    | "contactSuccessMessage"
+    | "contactConsentText"
+  >;
+};
+
+export function ContactForm({ settings }: Props) {
+  const buttonLabels = settings.buttonLabels ?? DEFAULT_BUTTON_LABELS;
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [error, setError] = useState("");
   const [dataConsent, setDataConsent] = useState(true);
@@ -45,57 +65,74 @@ export function ContactForm({ buttonLabels = DEFAULT_BUTTON_LABELS }: { buttonLa
   }
 
   return (
-    <form onSubmit={handleSubmit} className="card-surface flex h-full w-full flex-col space-y-4 p-6">
+    <form onSubmit={handleSubmit} className="card-surface flex h-auto w-full shrink-0 flex-col space-y-4 p-6">
       <div>
-        <h3 className="text-lg font-semibold">Заявка</h3>
-        <p className="mt-1 text-sm text-[var(--text-muted)]">
-          Заполните форму — менеджер свяжется с вами и предложит решение под вашу задачу.
+        <h3 className="text-lg font-semibold" data-content-field="contactFormTitle">
+          {settings.contactFormTitle}
+        </h3>
+        <p className="mt-1 text-sm text-[var(--text-muted)]" data-content-field="contactFormLead">
+          {settings.contactFormLead}
         </p>
       </div>
       <label className="block">
-        <span className="mb-1 block text-sm text-[var(--text-muted)]">Имя</span>
+        <span className="mb-1 block text-sm text-[var(--text-muted)]" data-content-field="contactNameLabel">
+          {settings.contactNameLabel}
+        </span>
         <input
           name="name"
           required
-          placeholder="Как к вам обращаться"
+          placeholder={settings.contactNamePlaceholder}
+          data-placeholder-field="contactNamePlaceholder"
           className="form-field"
         />
       </label>
       <label className="block">
-        <span className="mb-1 block text-sm text-[var(--text-muted)]">Email</span>
+        <span className="mb-1 block text-sm text-[var(--text-muted)]" data-content-field="contactEmailLabel">
+          {settings.contactEmailLabel}
+        </span>
         <input
           name="email"
           type="email"
           required
-          placeholder="name@company.ru"
+          placeholder={settings.contactEmailPlaceholder}
+          data-placeholder-field="contactEmailPlaceholder"
           className="form-field"
         />
       </label>
       <label className="block">
-        <span className="mb-1 block text-sm text-[var(--text-muted)]">Телефон</span>
+        <span className="mb-1 block text-sm text-[var(--text-muted)]" data-content-field="contactPhoneLabel">
+          {settings.contactPhoneLabel}
+        </span>
         <input
           name="phone"
           type="tel"
           required
           autoComplete="tel"
-          placeholder="+7 (999) 123-45-67"
+          placeholder={settings.contactPhonePlaceholder}
+          data-placeholder-field="contactPhonePlaceholder"
           className="form-field"
         />
       </label>
       <label className="block">
-        <span className="mb-1 block text-sm text-[var(--text-muted)]">Что нужно сделать?</span>
+        <span
+          className="mb-1 block text-sm text-[var(--text-muted)]"
+          data-content-field="contactMessageLabel"
+        >
+          {settings.contactMessageLabel}
+        </span>
         <textarea
           name="message"
           required
           rows={4}
-          placeholder="Кратко опишите проект, сроки и бюджет (если есть)"
+          placeholder={settings.contactMessagePlaceholder}
+          data-placeholder-field="contactMessagePlaceholder"
           className="form-field resize-none"
         />
       </label>
       {error && <p className="text-sm text-red-400">{error}</p>}
       {status === "success" && (
-        <p className="text-sm text-green-400">
-          Заявка принята! Мы свяжемся с вами в ближайшие 2 часа в рабочее время.
+        <p className="text-sm text-green-400" data-content-field="contactSuccessMessage">
+          {settings.contactSuccessMessage}
         </p>
       )}
       <button
@@ -111,7 +148,7 @@ export function ContactForm({ buttonLabels = DEFAULT_BUTTON_LABELS }: { buttonLa
         </span>
       </button>
       <div className="flex gap-3 text-left text-xs leading-relaxed text-[var(--text-muted)]">
-        <label className="relative inline-flex h-[18px] w-[18px] shrink-0 cursor-pointer self-start rounded-sm">
+        <label className="relative inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center self-start rounded-sm">
           <input
             id="contact-data-consent"
             type="checkbox"
@@ -123,7 +160,7 @@ export function ContactForm({ buttonLabels = DEFAULT_BUTTON_LABELS }: { buttonLa
             className="absolute inset-0 cursor-pointer opacity-0 outline-none ring-0 focus:outline-none focus-visible:outline-none"
           />
           <span
-            className={`pointer-events-none flex h-[18px] w-[18px] items-center justify-center rounded-sm border-2 border-[var(--accent)] transition-colors ${
+            className={`pointer-events-none flex h-[22px] w-[22px] items-center justify-center rounded-sm border-2 border-[var(--accent)] transition-colors ${
               dataConsent ? "bg-[var(--accent)]" : "bg-transparent"
             }`}
             aria-hidden
@@ -135,8 +172,8 @@ export function ContactForm({ buttonLabels = DEFAULT_BUTTON_LABELS }: { buttonLa
             />
           </span>
         </label>
-        <label htmlFor="contact-data-consent" className="cursor-pointer select-none">
-          Нажимая кнопку, вы соглашаетесь на обработку персональных данных.
+        <label htmlFor="contact-data-consent" className="cursor-pointer select-none" data-content-field="contactConsentText">
+          {settings.contactConsentText}
         </label>
       </div>
     </form>

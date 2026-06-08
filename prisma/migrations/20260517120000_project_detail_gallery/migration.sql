@@ -1,3 +1,0 @@
--- AlterTable
-ALTER TABLE "Project" ADD COLUMN "body" TEXT NOT NULL DEFAULT '';
-ALTER TABLE "Project" ADD COLUMN "gallery" TEXT NOT NULL DEFAULT '[]';

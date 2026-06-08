@@ -8,7 +8,7 @@ export function Stats({ settings }: Pick<SiteContent, "settings">) {
       <Reveal>
         <div className="stats-card card-surface card-interactive flex min-h-[420px] min-w-0 flex-col items-start justify-center gap-8 p-10 md:flex-row md:items-center md:gap-16 md:py-12">
           <p
-            className="stat-glow w-full min-w-0 shrink-0 text-center text-[clamp(4.5rem,16vw,13rem)] font-black leading-none text-accent md:w-auto md:text-left"
+            className="stat-glow w-full min-w-0 shrink-0 text-center text-[clamp(7rem,26vw,20rem)] font-black leading-none text-accent md:w-auto md:text-left"
             data-content-field="statValue"
           >
             {settings.statValue}

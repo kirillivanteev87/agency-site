@@ -3,6 +3,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { blobToFile } from "@/lib/crop-image";
 import { parseJsonArray } from "@/lib/parse-json";
+import {
+  parseProjectGalleryItems,
+  serializeProjectGallery,
+  type ProjectGalleryItem,
+} from "@/lib/project-gallery";
 import { ImageCropDialog } from "./ImageCropDialog";
 
 export type AdminFieldGroup = { label: string; fields: string[] };
@@ -30,7 +35,7 @@ const fieldLabels: Record<string, string> = {
   title: "Заголовок",
   description: "Краткое описание (карточка)",
   body: "О проекте (текст)",
-  gallery: "Галерея (JSON массив URL)",
+  gallery: "Галерея (JSON: URL или { displayUrl, fullUrl })",
   imageUrl: "Обложка (URL)",
   link: "Внешняя ссылка (опционально)",
   sortOrder: "Порядок",
@@ -66,11 +71,21 @@ const fieldLabels: Record<string, string> = {
   features: "Возможности (JSON массив строк)",
   featured: "Рекомендуем на витрине",
   published: "Опубликовано на сайте",
+  name: "Название тарифа",
+  eyebrow: "Подпись над названием (Запуск, Рост…)",
+  summary: "Краткое описание под названием",
+  audienceLabel: "Для кого — целевая аудитория",
+  outcomeText: "Ожидаемый результат",
+  price: "Цена (только число, без ₽)",
+  badgeLabel: "Текст бейджа (если «Популярный»)",
 };
 
 function isTextareaField(field: string) {
   return (
     field.includes("description") ||
+    field === "summary" ||
+    field === "audienceLabel" ||
+    field === "outcomeText" ||
     field.includes("Text") ||
     field === "answer" ||
     field === "body" ||
@@ -103,6 +118,7 @@ export function ItemEditor({
   const [draft, setDraft] = useState(item);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
   const [galleryCropSrc, setGalleryCropSrc] = useState<string | null>(null);
+  const [galleryCropSourceFile, setGalleryCropSourceFile] = useState<File | null>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
   const id = Number(item.id);
 
@@ -143,17 +159,15 @@ export function ItemEditor({
 
   async function uploadGalleryCroppedBlob(blob: Blob) {
     if (!onUpload) return;
-    const file = blobToFile(blob, `gallery-${Date.now()}.jpg`);
-    const url = await onUpload(file);
-    let arr: string[] = [];
-    try {
-      const parsed = JSON.parse(String(draft.gallery || "[]"));
-      if (Array.isArray(parsed)) arr = parsed.filter((x) => typeof x === "string");
-    } catch {
-      arr = [];
+    const croppedFile = blobToFile(blob, `gallery-${Date.now()}.jpg`);
+    const displayUrl = await onUpload(croppedFile);
+    let fullUrl = displayUrl;
+    if (galleryCropSourceFile) {
+      fullUrl = await onUpload(galleryCropSourceFile);
     }
-    arr.push(url);
-    setDraft({ ...draft, gallery: JSON.stringify(arr) });
+    const items = parseProjectGalleryItems(String(draft.gallery ?? "[]"));
+    const entry: ProjectGalleryItem = { displayUrl, fullUrl };
+    setDraft({ ...draft, gallery: serializeProjectGallery([...items, entry]) });
   }
 
   function renderField(field: string) {
@@ -186,12 +200,12 @@ export function ItemEditor({
         )}
         {field === "gallery" && (
           <GalleryStrip
-            urls={parseJsonArray<string>(String(draft.gallery ?? "[]"), []).filter(Boolean)}
-            onRemove={(url) => {
-              const next = parseJsonArray<string>(String(draft.gallery ?? "[]"), []).filter(
-                (u) => u !== url,
+            items={parseProjectGalleryItems(String(draft.gallery ?? "[]"))}
+            onRemove={(displayUrl) => {
+              const next = parseProjectGalleryItems(String(draft.gallery ?? "[]")).filter(
+                (i) => i.displayUrl !== displayUrl,
               );
-              setDraft({ ...draft, gallery: JSON.stringify(next) });
+              setDraft({ ...draft, gallery: serializeProjectGallery(next) });
             }}
           />
         )}
@@ -223,11 +237,13 @@ export function ItemEditor({
         onClose={() => {
           if (galleryCropSrc.startsWith("blob:")) URL.revokeObjectURL(galleryCropSrc);
           setGalleryCropSrc(null);
+          setGalleryCropSourceFile(null);
         }}
         onConfirm={async (blob) => {
           await uploadGalleryCroppedBlob(blob);
           if (galleryCropSrc.startsWith("blob:")) URL.revokeObjectURL(galleryCropSrc);
           setGalleryCropSrc(null);
+          setGalleryCropSourceFile(null);
         }}
       />
     ) : null}
@@ -254,6 +270,7 @@ export function ItemEditor({
               const file = e.target.files?.[0];
               if (!file) return;
               if (galleryCropSrc?.startsWith("blob:")) URL.revokeObjectURL(galleryCropSrc);
+              setGalleryCropSourceFile(file);
               setGalleryCropSrc(URL.createObjectURL(file));
               e.target.value = "";
             }}
@@ -321,21 +338,27 @@ export function ItemEditor({
   );
 }
 
-function GalleryStrip({ urls, onRemove }: { urls: string[]; onRemove: (url: string) => void }) {
-  if (urls.length === 0) return null;
+function GalleryStrip({
+  items,
+  onRemove,
+}: {
+  items: ProjectGalleryItem[];
+  onRemove: (displayUrl: string) => void;
+}) {
+  if (items.length === 0) return null;
   return (
     <div className="mt-2 flex flex-wrap gap-2">
-      {urls.map((url) => (
+      {items.map((item) => (
         <div
-          key={url}
+          key={item.displayUrl}
           className="relative h-16 w-16 overflow-hidden rounded-md border border-[var(--border)] bg-[var(--input-bg)]"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={url} alt="" className="h-full w-full object-cover" />
+          <img src={item.displayUrl} alt="" className="h-full w-full object-cover" />
           <button
             type="button"
             className="absolute right-0 top-0 rounded-bl bg-black/70 px-1.5 py-0.5 text-xs text-white hover:bg-red-600"
-            onClick={() => onRemove(url)}
+            onClick={() => onRemove(item.displayUrl)}
             aria-label="Удалить из галереи"
           >
             ×

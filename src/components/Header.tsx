@@ -9,7 +9,7 @@ import type { SiteSettingsView } from "./types";
 const links = [
   { href: "/marketplace", label: "Лаборатория" },
   { href: "/#projects", label: "Проекты" },
-  { href: "/#cases", label: "Кейсы" },
+  { href: "/#cases", label: "Продукты" },
   { href: "/#services", label: "Услуги" },
   { href: "/#faq", label: "FAQ" },
   { href: "/#contact", label: "Контакты" },
@@ -19,11 +19,18 @@ export function Header({
   brandName,
   brandHighlightText,
   brandHighlightColor,
+  logoMode,
+  logoImageUrl,
   buttonLabels,
   overlay = false,
 }: Pick<
   SiteSettingsView,
-  "brandName" | "brandHighlightText" | "brandHighlightColor" | "buttonLabels"
+  | "brandName"
+  | "brandHighlightText"
+  | "brandHighlightColor"
+  | "logoMode"
+  | "logoImageUrl"
+  | "buttonLabels"
 > & {
   overlay?: boolean;
 }) {
@@ -49,11 +56,16 @@ export function Header({
   return (
     <header className={headerClass}>
       <div className="section-container flex h-16 items-center justify-between gap-3">
-        <Link href="/" className="transition-opacity hover:opacity-80">
+        <Link
+          href="/"
+          className="transition-opacity [@media(hover:hover)_and_(pointer:fine)]:hover:opacity-80"
+        >
           <BrandLogo
             brandName={brandName}
             highlightText={brandHighlightText}
             highlightColor={brandHighlightColor}
+            logoMode={logoMode}
+            logoImageUrl={logoImageUrl}
             dataContentField="brandName"
             className="text-lg font-bold tracking-tight"
           />
@@ -64,7 +76,7 @@ export function Header({
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-sm text-[var(--text-muted)] transition-colors duration-200 hover:text-[var(--text)]"
+                className="text-sm text-[var(--text-muted)] transition-colors duration-200 [@media(hover:hover)_and_(pointer:fine)]:hover:text-[var(--text)]"
               >
                 {link.label}
               </Link>
@@ -72,7 +84,7 @@ export function Header({
               <a
                 key={link.href}
                 href={link.href}
-                className="text-sm text-[var(--text-muted)] transition-colors duration-200 hover:text-[var(--text)]"
+                className="text-sm text-[var(--text-muted)] transition-colors duration-200 [@media(hover:hover)_and_(pointer:fine)]:hover:text-[var(--text)]"
               >
                 {link.label}
               </a>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ReviewsSection } from "@/components/reviews/ReviewsSection";
+import { WhyChooseUsSection } from "@/components/reviews/WhyChooseUsSection";
 
 export const metadata: Metadata = {
   title: "Отзывы",
@@ -9,7 +10,10 @@ export const metadata: Metadata = {
 export default function ReviewsPage() {
   return (
     <main className="overflow-x-clip">
-      <ReviewsSection />
+      <div className="reviews-page">
+        <WhyChooseUsSection />
+        <ReviewsSection />
+      </div>
     </main>
   );
 }

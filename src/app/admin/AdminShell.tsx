@@ -15,8 +15,10 @@ import {
   MoveHorizontal,
   ShoppingBag,
   Sparkles,
+  Tags,
   Store,
   Type,
+  Mail,
 } from "lucide-react";
 import type { AdminDashboardTab } from "@/lib/admin-preview-paths";
 import { BrandLogo } from "@/components/BrandLogo";
@@ -34,6 +36,8 @@ const MAIN_NAV: NavItem[] = [
   { id: "buttons", label: "Кнопки", icon: <MousePointerClick size={18} /> },
   { id: "hero", label: "Hero", icon: <Sparkles size={18} /> },
   { id: "services", label: "Услуги", icon: <LayoutGrid size={18} /> },
+  { id: "pricing", label: "Тарифы", icon: <Tags size={18} /> },
+  { id: "contact", label: "Форма", icon: <Mail size={18} /> },
   { id: "marketplace", label: "Marketplace", icon: <Store size={18} /> },
   { id: "faq", label: "FAQ", icon: <HelpCircle size={18} /> },
   { id: "messages", label: "Заявки", icon: <Inbox size={18} />, dividerBefore: true },

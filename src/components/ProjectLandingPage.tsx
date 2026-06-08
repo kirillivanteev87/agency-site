@@ -45,7 +45,7 @@ export function ProjectLandingPage({
 
           <div className="case-landing__hero-grid">
             <div>
-              <p className="case-landing__eyebrow">ПРОЕКТ REDLINE</p>
+              <p className="case-landing__eyebrow">Проект QNOX</p>
               <h1>{data.title}</h1>
               <p className="case-landing__hero-desc">{data.description}</p>
               <p className="case-landing__hero-meta">{display.heroMeta}</p>
@@ -103,7 +103,7 @@ export function ProjectLandingPage({
                   </div>
                   <div className="case-landing__cover-caption">
                     <strong>{data.title}</strong>
-                    <span>Digital product by REDLINE</span>
+                    <span>Digital product by QNOX</span>
                   </div>
                 </div>
               </div>

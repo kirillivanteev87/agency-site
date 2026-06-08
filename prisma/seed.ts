@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { DEFAULT_BUTTON_LABELS, serializeButtonLabels } from "../src/lib/button-labels";
 import { DEFAULT_SPACING } from "../src/lib/section-spacing";
+import { DEFAULT_PRICING_PLANS, DEFAULT_PRICING_SECTION } from "../src/lib/pricing-defaults";
 
 const prisma = new PrismaClient();
 
@@ -22,23 +23,28 @@ const SELLING_SETTINGS = {
   brandName: "REDLINE",
   brandHighlightText: "RED",
   brandHighlightColor: "#ef4444",
+  logoMode: "image",
+  logoImageUrl: "/images/qnox-logo.png",
   heroTitle: "Сайты и приложения,",
   heroHighlight: "которые приносят заявки и продажи",
   heroSubtitle:
     "Проектируем под вашу воронку: от первого экрана до формы заявки. Фиксируем сроки и бюджет в договоре — без скрытых доплат.",
   heroMeta: "Ответим в течение 2 часов · Без обязательств · NDA по запросу",
-  heroVideoUrl: "/video/1778997378487-14519720_3840_2160_25fps.mp4",
-  heroVideoUrlLight: "/video/hero.mp4",
+  heroBenefit1: "Рост заявок и продаж",
+  heroBenefit2: "Сроки и бюджет в договоре",
+  heroBenefit3: "Поддержка после запуска",
+  heroVideoUrl: "/video/hero-dark.mp4",
+  heroVideoUrlLight: "/video/hero-light.mp4",
   statValue: "70+",
   statText: "запущенных проектов для бизнеса, стартапов и e-commerce за 5 лет",
   footerCopyright: "© 2026 REDLINE. Все права защищены.",
+  footerDescriptor: "Студия цифровых продуктов: SaaS, AI и веб-платформы.",
+  footerBehanceUrl: "https://www.behance.net",
+  footerGithubUrl: "https://github.com",
   phones: JSON.stringify(["+7 (999) 123-45-67"]),
   emails: JSON.stringify(["hello@redline.studio"]),
   addresses: JSON.stringify(["Москва, работаем по всей России и СНГ"]),
-  socialLinks: JSON.stringify([
-    { label: "Telegram", url: "https://t.me" },
-    { label: "WhatsApp", url: "https://wa.me" },
-  ]),
+  socialLinks: JSON.stringify([]),
 };
 
 async function syncImageUrls() {
@@ -70,6 +76,9 @@ async function syncSellingContent() {
       title: "FinTech Dashboard",
       description:
         "Панель для инвесторов и менеджеров: сократили время обработки заявки на 40%, внедрили онбординг за 2 клика.",
+      cardTitle: "FinTech Dashboard",
+      cardDescription: "Панель для инвесторов и менеджеров с онбордингом за 2 клика.",
+      cardResultText: "−40% время обработки заявки",
       body: `Клиент: финтех-стартап.\n\nЗадача: единая панель для заявок, KYC и отчётности с ролями и аудитом.\n\nРешение: дизайн-система под тёмную тему, быстрые фильтры, сохранённые представления, экспорт в Excel.\n\nРезультат: среднее время обработки заявки снизилось на 40%, NPS интерфейса 8.4 из 10.`,
       gallery: JSON.stringify(["/images/project-1.svg", "/images/project-2.svg"]),
       link: "#contact",
@@ -79,6 +88,9 @@ async function syncSellingContent() {
       title: "E-commerce Redesign",
       description:
         "Редизайн магазина с упором на корзину и оплату: конверсия в заказ выросла на 34%, средний чек +12%.",
+      cardTitle: "E-commerce Redesign",
+      cardDescription: "Редизайн магазина с упором на корзину и оплату.",
+      cardResultText: "+34% к конверсии в заказ\n+12% к среднему чеку",
       body: `Сегмент: fashion e-commerce.\n\nПроблема: высокий отказ на чекауте и слабая мобильная воронка.\n\nЧто сделали: упростили шаги оплаты, добавили доверительные блоки, переработали карточку товара и рекомендации.\n\nИтог: +34% к конверсии в заказ, +12% к среднему чеку за 60 дней после релиза.`,
       gallery: JSON.stringify(["/images/project-2.svg", "/images/project-3.svg"]),
       link: "#contact",
@@ -88,6 +100,9 @@ async function syncSellingContent() {
       title: "Medical Portal",
       description:
         "Онлайн-запись и личный кабинет пациента: −60% звонков в регистратуру, запись за 90 секунд с телефона.",
+      cardTitle: "Medical Portal",
+      cardDescription: "Онлайн-запись и личный кабинет пациента с телефона.",
+      cardResultText: "−60% звонков в регистратуру\nЗапись за 90 секунд",
       body: `Задача: снизить нагрузку на регистратуру и дать пациентам самообслуживание 24/7.\n\nРеализация: расписание врачей, напоминания, оплата онлайн, история визитов, интеграция с МИС.\n\nЭффект: −60% входящих звонков, запись со смартфона за 90 секунд.`,
       gallery: JSON.stringify(["/images/project-3.svg"]),
       link: "#contact",
@@ -97,6 +112,9 @@ async function syncSellingContent() {
       title: "Real Estate Platform",
       description:
         "Каталог с картой и умными фильтрами: в 2 раза больше целевых заявок с сайта за первый квартал.",
+      cardTitle: "Real Estate Platform",
+      cardDescription: "Каталог с картой и умными фильтрами для подбора объектов.",
+      cardResultText: "×2 целевых заявок с сайта за первый квартал",
       body: `Продукт: каталог недвижимости с картой и подбором по параметрам.\n\nФокус: скорость поиска, сохранённые подборки, лиды в CRM, SEO под регионы.\n\nРезультат: в 2 раза больше целевых заявок с сайта за первый квартал.`,
       gallery: JSON.stringify(["/images/project-4.svg", "/images/project-5.svg"]),
       link: "#contact",
@@ -106,6 +124,9 @@ async function syncSellingContent() {
       title: "EdTech LMS",
       description:
         "Платформа обучения с подписками: удержание студентов +22%, автоматизация проверки домашних заданий.",
+      cardTitle: "EdTech LMS",
+      cardDescription: "Платформа обучения с подписками и автоматизацией проверки ДЗ.",
+      cardResultText: "+22% удержание студентов\n−15 ч/нед на ручной проверке",
       body: `Платформа: LMS с подписками, уроками и проверкой ДЗ.\n\nДополнительно: геймификация, прогресс-бар, уведомления, админка курсов.\n\nМетрики: удержание +22%, экономия 15 часов в неделю на ручной проверке.`,
       gallery: JSON.stringify(["/images/project-5.svg"]),
       link: "#contact",
@@ -115,6 +136,9 @@ async function syncSellingContent() {
       title: "Corporate B2B Site",
       description:
         "Корпоративный сайт под лиды: 3× рост заявок на коммерческое предложение после запуска новой структуры.",
+      cardTitle: "Corporate B2B Site",
+      cardDescription: "Корпоративный сайт под лиды с отраслевыми лендингами и калькулятором.",
+      cardResultText: "×3 заявок на КП за первые 8 недель",
       body: `B2B: услуги для предприятий.\n\nПерестроили структуру под лиды: отраслевые лендинги, калькулятор внедрения, кейсы с цифрами, быстрый контакт.\n\nРезультат: в 3 раза больше заявок на КП в первые 8 недель.`,
       gallery: JSON.stringify(["/images/project-6.svg", "/images/project-1.svg"]),
       link: "#contact",
@@ -407,12 +431,66 @@ async function main() {
 
   if ((await prisma.project.count()) === 0) {
     const projects = [
-      { title: "FinTech Dashboard", description: "Панель для инвесторов: −40% время обработки заявки.", imageUrl: IMAGES.projects[0], link: "#contact", sortOrder: 0 },
-      { title: "E-commerce Redesign", description: "Конверсия в заказ +34%, средний чек +12%.", imageUrl: IMAGES.projects[1], link: "#contact", sortOrder: 1 },
-      { title: "Medical Portal", description: "Онлайн-запись за 90 секунд, −60% звонков в регистратуру.", imageUrl: IMAGES.projects[2], link: "#contact", sortOrder: 2 },
-      { title: "Real Estate Platform", description: "×2 целевых заявок с сайта за квартал.", imageUrl: IMAGES.projects[3], link: "#contact", sortOrder: 3 },
-      { title: "EdTech LMS", description: "Удержание студентов +22%.", imageUrl: IMAGES.projects[4], link: "#contact", sortOrder: 4 },
-      { title: "Corporate B2B Site", description: "×3 заявок на КП после редизайна.", imageUrl: IMAGES.projects[5], link: "#contact", sortOrder: 5 },
+      {
+        title: "FinTech Dashboard",
+        description: "Панель для инвесторов: −40% время обработки заявки.",
+        cardTitle: "FinTech Dashboard",
+        cardDescription: "Панель для инвесторов и менеджеров с онбордингом за 2 клика.",
+        cardResultText: "−40% время обработки заявки",
+        imageUrl: IMAGES.projects[0],
+        link: "#contact",
+        sortOrder: 0,
+      },
+      {
+        title: "E-commerce Redesign",
+        description: "Конверсия в заказ +34%, средний чек +12%.",
+        cardTitle: "E-commerce Redesign",
+        cardDescription: "Редизайн магазина с упором на корзину и оплату.",
+        cardResultText: "+34% к конверсии в заказ\n+12% к среднему чеку",
+        imageUrl: IMAGES.projects[1],
+        link: "#contact",
+        sortOrder: 1,
+      },
+      {
+        title: "Medical Portal",
+        description: "Онлайн-запись за 90 секунд, −60% звонков в регистратуру.",
+        cardTitle: "Medical Portal",
+        cardDescription: "Онлайн-запись и личный кабинет пациента с телефона.",
+        cardResultText: "−60% звонков в регистратуру\nЗапись за 90 секунд",
+        imageUrl: IMAGES.projects[2],
+        link: "#contact",
+        sortOrder: 2,
+      },
+      {
+        title: "Real Estate Platform",
+        description: "×2 целевых заявок с сайта за квартал.",
+        cardTitle: "Real Estate Platform",
+        cardDescription: "Каталог с картой и умными фильтрами для подбора объектов.",
+        cardResultText: "×2 целевых заявок с сайта за первый квартал",
+        imageUrl: IMAGES.projects[3],
+        link: "#contact",
+        sortOrder: 3,
+      },
+      {
+        title: "EdTech LMS",
+        description: "Удержание студентов +22%.",
+        cardTitle: "EdTech LMS",
+        cardDescription: "Платформа обучения с подписками и автоматизацией проверки ДЗ.",
+        cardResultText: "+22% удержание студентов\n−15 ч/нед на ручной проверке",
+        imageUrl: IMAGES.projects[4],
+        link: "#contact",
+        sortOrder: 4,
+      },
+      {
+        title: "Corporate B2B Site",
+        description: "×3 заявок на КП после редизайна.",
+        cardTitle: "Corporate B2B Site",
+        cardDescription: "Корпоративный сайт под лиды с отраслевыми лендингами и калькулятором.",
+        cardResultText: "×3 заявок на КП за первые 8 недель",
+        imageUrl: IMAGES.projects[5],
+        link: "#contact",
+        sortOrder: 5,
+      },
     ];
     await prisma.project.createMany({ data: projects });
   }
@@ -552,6 +630,30 @@ async function main() {
           sortOrder: 5,
         },
       ],
+    });
+  }
+
+  if ((await prisma.pricingPlan.count()) === 0) {
+    await prisma.pricingPlan.createMany({ data: [...DEFAULT_PRICING_PLANS] });
+  } else {
+    for (const plan of DEFAULT_PRICING_PLANS) {
+      await prisma.pricingPlan.updateMany({
+        where: { name: plan.name, audienceLabel: "" },
+        data: {
+          eyebrow: plan.eyebrow,
+          summary: plan.summary,
+          audienceLabel: plan.audienceLabel,
+          outcomeText: plan.outcomeText,
+        },
+      });
+    }
+  }
+
+  const settingsRow = await prisma.siteSettings.findUnique({ where: { id: 1 } });
+  if (settingsRow && !settingsRow.pricingTitle?.trim()) {
+    await prisma.siteSettings.update({
+      where: { id: 1 },
+      data: { ...DEFAULT_PRICING_SECTION },
     });
   }
 

@@ -1,10 +1,13 @@
 import type { CSSProperties, ReactNode } from "react";
 import { collectHighlightIndexes } from "@/lib/brand-highlight";
+import { DEFAULT_LOGO_IMAGE_URL, type LogoMode } from "@/lib/logo-settings";
 
 type BrandLogoProps = {
   brandName: string;
   highlightText?: string;
   highlightColor?: string;
+  logoMode?: LogoMode;
+  logoImageUrl?: string;
   className?: string;
   dataContentField?: string;
 };
@@ -54,17 +57,38 @@ export function BrandLogo({
   brandName,
   highlightText,
   highlightColor,
+  logoMode = "image",
+  logoImageUrl = DEFAULT_LOGO_IMAGE_URL,
   className,
   dataContentField,
 }: BrandLogoProps) {
   const name = brandName || "";
+  const imageUrl = logoImageUrl.trim() || DEFAULT_LOGO_IMAGE_URL;
+
+  if (logoMode === "image") {
+    return (
+      <span data-brand-logo className={className}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={imageUrl}
+          alt={name || "Logo"}
+          width={180}
+          height={32}
+          decoding="async"
+          fetchPriority="high"
+          className="brand-logo-image h-8 w-auto max-w-[180px] object-contain object-left"
+        />
+      </span>
+    );
+  }
+
   const customHighlight = (highlightText ?? "").trim();
   const color = sanitizeHexColor(highlightColor);
   const highlightIndexes = collectHighlightIndexes(name, customHighlight);
 
   if (highlightIndexes.size > 0) {
     return (
-      <span data-content-field={dataContentField} className={className}>
+      <span data-brand-logo data-content-field={dataContentField} className={className}>
         {renderHighlightedByIndexes(name, highlightIndexes, color)}
       </span>
     );
@@ -72,14 +96,14 @@ export function BrandLogo({
 
   if (customHighlight) {
     return (
-      <span data-content-field={dataContentField} className={className}>
+      <span data-brand-logo data-content-field={dataContentField} className={className}>
         {name}
       </span>
     );
   }
 
   return (
-    <span data-content-field={dataContentField} className={className}>
+    <span data-brand-logo data-content-field={dataContentField} className={className}>
       <span className="text-accent">{name.slice(0, 3)}</span>
       {name.slice(3)}
     </span>

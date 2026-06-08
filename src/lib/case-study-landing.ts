@@ -1,6 +1,6 @@
 import { metricsForCaseStudyIndex } from "./case-study-metrics";
 import { parseJsonArray } from "./parse-json";
-import { buildDetailPhotos } from "./project-gallery";
+import { buildDetailPhotos, type DetailPhoto } from "./project-gallery";
 import type { CaseStudy } from "@prisma/client";
 
 export type LandingBenefit = { title: string; text: string };
@@ -8,7 +8,7 @@ export type LandingStep = { title: string; text: string };
 
 export type CaseStudyLandingView = CaseStudy & {
   metrics: string[];
-  photos: string[];
+  photos: DetailPhoto[];
   scopeItemsList: string[];
   benefitsList: LandingBenefit[];
   stepsList: LandingStep[];
@@ -121,7 +121,7 @@ function resolveDisplayTexts(study: CaseStudy): CaseStudyLandingView["display"] 
   const lead = study.description.trim();
 
   return {
-    heroMeta: study.landingHeroMeta.trim() || `${product} · Кейс REDLINE · Продукт под ключ`,
+    heroMeta: study.landingHeroMeta.trim() || `${product} · Кейс QNOX · Продукт под ключ`,
     challengeText:
       study.challengeText.trim() ||
       `Клиенту нужно было ${study.title.toLowerCase()}. ${lead || "Задача требовала быстрого и понятного цифрового решения без лишней сложности для пользователя."}`,

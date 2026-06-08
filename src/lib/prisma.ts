@@ -1,7 +1,25 @@
 import { PrismaClient } from "@prisma/client";
+import { prismaRuntimeLooksStale } from "./prisma-stale";
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
+const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
-export const prisma = globalForPrisma.prisma || new PrismaClient();
+function createPrismaClient() {
+  return new PrismaClient();
+}
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+function getPrismaClient() {
+  const cached = globalForPrisma.prisma;
+  if (process.env.NODE_ENV === "production") {
+    return cached ?? createPrismaClient();
+  }
+
+  if (cached && !prismaRuntimeLooksStale(cached)) {
+    return cached;
+  }
+
+  const next = createPrismaClient();
+  globalForPrisma.prisma = next;
+  return next;
+}
+
+export const prisma = getPrismaClient();

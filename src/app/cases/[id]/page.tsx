@@ -10,7 +10,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const data = await getCaseStudyLanding(Number(id));
   if (!data) return { title: "Кейс не найден" };
   return {
-    title: `${data.title} — REDLINE`,
+    title: `${data.title} — QNOX`,
     description: data.description.slice(0, 160),
   };
 }

@@ -4,14 +4,11 @@ import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { Dashboard } from "./Dashboard";
 import { DynamicIcon } from "./icons";
 import { HeroBackdropVideo } from "./HeroBackdropVideo";
+import { TextWithLineBreaks } from "./TextWithLineBreaks";
 import { Reveal } from "./Reveal";
 import type { SiteContent } from "./types";
 
-const HERO_BENEFITS = [
-  "Рост заявок и продаж",
-  "Сроки и бюджет в договоре",
-  "Поддержка после запуска",
-] as const;
+const HERO_BENEFIT_FIELDS = ["heroBenefit1", "heroBenefit2", "heroBenefit3"] as const;
 
 export function Hero({
   settings,
@@ -26,6 +23,8 @@ export function Hero({
 
   const heroVideoDark = settings.heroVideoUrl?.trim() ?? "";
   const heroVideoLight = settings.heroVideoUrlLight?.trim() ?? "";
+  const heroPosterDark = settings.heroVideoPosterUrl?.trim() ?? "";
+  const heroPosterLight = settings.heroVideoPosterUrlLight?.trim() ?? "";
   const hasHeroVideo = heroVideoDark.length > 0 || heroVideoLight.length > 0;
 
   return (
@@ -44,6 +43,7 @@ export function Hero({
               <HeroBackdropVideo
                 key={heroVideoDark}
                 src={heroVideoDark}
+                poster={heroPosterDark || undefined}
                 className="hero-backdrop-video hero-backdrop-video--dark pointer-events-none absolute inset-0 z-0 h-full w-full object-cover"
               />
             ) : null}
@@ -51,6 +51,7 @@ export function Hero({
               <HeroBackdropVideo
                 key={heroVideoLight}
                 src={heroVideoLight}
+                poster={heroPosterLight || undefined}
                 className="hero-backdrop-video hero-backdrop-video--light pointer-events-none absolute inset-0 z-0 h-full w-full object-cover"
               />
             ) : (
@@ -86,45 +87,42 @@ export function Hero({
           <p className="hero-badge mb-5 inline-flex rounded-full border border-[var(--accent)]/40 bg-[rgba(225,29,72,0.08)] px-4 py-1.5 text-sm font-medium text-accent sm:mb-6">
             Веб-студия для бизнеса, которому нужны заявки
           </p>
-          <h1 className="hero-title mt-[20px] text-[clamp(1.75rem,4.5vw,3.75rem)] font-bold leading-[1.1] tracking-tight drop-shadow-[0_2px_24px_rgba(0,0,0,0.45)]">
-            <span className="block lg:whitespace-nowrap" data-content-field="heroTitle">
-              {settings.heroTitle}
+          <h1 className="hero-title mt-4 text-[clamp(1.75rem,4.5vw,3.75rem)] font-bold leading-[1.1] tracking-tight drop-shadow-[0_2px_24px_rgba(0,0,0,0.45)] sm:mt-5 md:mt-[20px]">
+            <span className="block" data-content-field="heroTitle">
+              <TextWithLineBreaks text={settings.heroTitle} />
             </span>
-            <span
-              className="mt-2 block text-accent lg:whitespace-nowrap"
-              data-content-field="heroHighlight"
-            >
-              {settings.heroHighlight}
+            <span className="mt-2 block text-accent" data-content-field="heroHighlight">
+              <TextWithLineBreaks text={settings.heroHighlight} />
             </span>
           </h1>
-          <div className="mt-[69px]">
+          <div className="mt-8 sm:mt-12 md:mt-[69px]">
             <p
-              className="hero-lead mt-6 max-w-2xl text-lg text-[var(--text-muted)] drop-shadow-[0_1px_12px_rgba(0,0,0,0.5)]"
+              className="hero-lead mt-4 max-w-2xl text-base text-[var(--text-muted)] drop-shadow-[0_1px_12px_rgba(0,0,0,0.5)] sm:mt-6 sm:text-lg"
               data-content-field="heroSubtitle"
             >
               {settings.heroSubtitle}
             </p>
 
             <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-2">
-              {HERO_BENEFITS.map((item) => (
+              {HERO_BENEFIT_FIELDS.map((field) => (
                 <li
-                  key={item}
+                  key={field}
                   className="hero-meta flex items-center gap-2 text-sm text-[var(--text-muted)] drop-shadow-[0_1px_8px_rgba(0,0,0,0.6)]"
                 >
                   <CheckCircle2 size={16} className="shrink-0 text-accent" aria-hidden />
-                  {item}
+                  <span data-content-field={field}>{settings[field]}</span>
                 </li>
               ))}
             </ul>
 
-            <div className="mt-[52px] flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row sm:items-center md:mt-[52px]">
               <a href="#contact" className="btn-primary btn-shimmer inline-flex justify-center">
                 <span className="relative z-10" data-button-field="heroPrimary">
                   {settings.buttonLabels.heroPrimary}
                 </span>
                 <ArrowRight size={18} className="relative z-10" aria-hidden />
               </a>
-              <a href="#cases" className="btn-outline inline-flex justify-center" data-button-field="heroSecondary">
+              <a href="/brief" className="btn-outline inline-flex justify-center" data-button-field="heroSecondary">
                 {settings.buttonLabels.heroSecondary}
               </a>
             </div>

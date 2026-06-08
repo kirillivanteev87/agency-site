@@ -1,0 +1,35 @@
+# Vercel CLI upload exclusions (gitignore-style globs).
+# Git Import does NOT read this file — only what is committed matters there.
+
+# Dependencies and build artifacts (Vercel installs/builds remotely)
+node_modules
+.next
+out
+build
+coverage
+
+# Local database and generated artifacts
+dev.db
+*.db
+*.db-journal
+/data/
+/src/generated/prisma
+
+# Env and local Vercel metadata
+.env*
+.vercel
+
+# macOS / editor noise
+.DS_Store
+*.tsbuildinfo
+
+# Legacy hero video uploads (~381 MB). Production uses compressed defaults only.
+# Safe to delete from disk after: node scripts/compress-hero-video.mjs
+public/video/177*.mp4
+public/video/hero.mp4
+
+# Keep in deploy: hero-dark.mp4, hero-light.mp4, hero-dark.webp, hero-light.webp, .gitkeep
+
+# Optional: exclude admin uploads to shrink CLI payload (~67 MB).
+# Uncomment for a minimal deploy test; site images will be missing until Blob or re-enable.
+# public/uploads/

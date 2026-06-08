@@ -6,15 +6,26 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { getSiteContent } from "@/lib/site-data";
 import "./globals.css";
 
+/** Geist — headings only; body text uses Open Sans via globals.css */
 const geist = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin", "cyrillic"],
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3001";
+
 export const metadata: Metadata = {
-  title: "REDLINE — сайты и приложения, которые приносят заявки",
+  metadataBase: new URL(siteUrl),
+  title: "Создание сайтов и приложений",
   description:
     "Веб-студия полного цикла: стратегия, дизайн под конверсию, разработка и поддержка. Бесплатная консультация и смета за 24 часа.",
+  icons: {
+    icon: [
+      { url: "/icon.png", type: "image/png", sizes: "512x512" },
+      { url: "/favicon.ico", type: "image/x-icon", sizes: "48x48" },
+    ],
+    apple: [{ url: "/apple-icon.png", type: "image/png", sizes: "180x180" }],
+  },
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

@@ -1,0 +1,75 @@
+.brief-page {
+  padding: clamp(2rem, 5vw, 4rem) 0 clamp(4rem, 8vw, 6rem);
+}
+
+@media (max-width: 767px) {
+  .brief-form-section {
+    padding: 1.25rem !important;
+  }
+}
+
+.brief-page__header {
+  max-width: 42rem;
+  margin-bottom: clamp(2rem, 4vw, 3rem);
+}
+
+.brief-page__eyebrow {
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.brief-form-section__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.brief-form-section__lead {
+  margin-top: 0.35rem;
+  font-size: 0.9375rem;
+  color: var(--text-muted);
+}
+
+.brief-form-label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.brief-form-chip {
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  color: var(--text);
+  transition:
+    border-color 0.15s,
+    background 0.15s,
+    color 0.15s;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .brief-form-chip:hover {
+    border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
+  }
+}
+
+.brief-form-chip--active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--text);
+}
+
+.brief-form select.form-field {
+  cursor: pointer;
+}
+
+.brief-form-success {
+  max-width: 36rem;
+}

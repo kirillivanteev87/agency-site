@@ -2,7 +2,8 @@
 
 import { Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { blobToFile } from "@/lib/crop-image";
+import { blobToFile, formatCropAspectLabel } from "@/lib/crop-image";
+import type { ProjectGalleryItem } from "@/lib/project-gallery";
 import { ImageCropDialog } from "./ImageCropDialog";
 
 type StringListProps = {
@@ -138,8 +139,8 @@ export function AdminCardListEditor({ label, hint, items, onChange }: CardListPr
 type GalleryProps = {
   label: string;
   hint?: string;
-  urls: string[];
-  onChange: (urls: string[]) => void;
+  items: ProjectGalleryItem[];
+  onChange: (items: ProjectGalleryItem[]) => void;
   onUpload?: (file: File) => Promise<string>;
   cropAspect?: number;
 };
@@ -149,12 +150,16 @@ const DEFAULT_UPLOAD_CROP_ASPECT = 1;
 export function AdminGalleryEditor({
   label,
   hint,
-  urls,
+  items,
   onChange,
   onUpload,
   cropAspect,
 }: GalleryProps) {
   const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [cropReplaceIndex, setCropReplaceIndex] = useState<number | null>(null);
+  const [cropSourceFile, setCropSourceFile] = useState<File | null>(null);
+  const aspect = cropAspect ?? DEFAULT_UPLOAD_CROP_ASPECT;
+  const aspectLabel = formatCropAspectLabel(aspect);
 
   useEffect(() => {
     return () => {
@@ -162,24 +167,62 @@ export function AdminGalleryEditor({
     };
   }, [cropSrc]);
 
+  function closeCrop() {
+    if (cropSrc?.startsWith("blob:")) URL.revokeObjectURL(cropSrc);
+    setCropSrc(null);
+    setCropReplaceIndex(null);
+    setCropSourceFile(null);
+  }
+
+  function openCropWithFile(file: File) {
+    if (cropSrc?.startsWith("blob:")) URL.revokeObjectURL(cropSrc);
+    setCropReplaceIndex(null);
+    setCropSourceFile(file);
+    setCropSrc(URL.createObjectURL(file));
+  }
+
+  function openRecrop(item: ProjectGalleryItem, index: number) {
+    if (cropSrc?.startsWith("blob:")) URL.revokeObjectURL(cropSrc);
+    setCropReplaceIndex(index);
+    setCropSourceFile(null);
+    setCropSrc(item.fullUrl || item.displayUrl);
+  }
+
+  async function uploadGalleryPair(blob: Blob): Promise<ProjectGalleryItem> {
+    if (!onUpload) throw new Error("onUpload required");
+    const croppedFile = blobToFile(blob, `gallery-${Date.now()}.jpg`);
+    const displayUrl = await onUpload(croppedFile);
+    let fullUrl = displayUrl;
+    if (cropSourceFile) {
+      fullUrl = await onUpload(cropSourceFile);
+    } else if (cropReplaceIndex != null) {
+      const prev = items[cropReplaceIndex];
+      if (prev?.fullUrl && prev.fullUrl !== prev.displayUrl) {
+        fullUrl = prev.fullUrl;
+      }
+    }
+    return { displayUrl, fullUrl };
+  }
+
   return (
     <div className="admin-list-editor">
       {cropSrc && onUpload ? (
         <ImageCropDialog
           open
           imageSrc={cropSrc}
-          aspect={cropAspect ?? DEFAULT_UPLOAD_CROP_ASPECT}
-          title="Обрезка фото галереи"
-          onClose={() => {
-            if (cropSrc.startsWith("blob:")) URL.revokeObjectURL(cropSrc);
-            setCropSrc(null);
-          }}
+          aspect={aspect}
+          title={cropReplaceIndex != null ? "Повторная обрезка фото" : "Обрезка фото галереи"}
+          onClose={closeCrop}
           onConfirm={async (blob) => {
-            const file = blobToFile(blob, `gallery-${Date.now()}.jpg`);
-            const url = await onUpload(file);
-            onChange([...urls, url]);
-            if (cropSrc.startsWith("blob:")) URL.revokeObjectURL(cropSrc);
-            setCropSrc(null);
+            const entry = await uploadGalleryPair(blob);
+            if (cropReplaceIndex != null) {
+              const next = [...items];
+              next[cropReplaceIndex] = entry;
+              onChange(next);
+            } else {
+              onChange([...items, entry]);
+            }
+            closeCrop();
           }}
         />
       ) : null}
@@ -189,17 +232,27 @@ export function AdminGalleryEditor({
           {hint ? <p className="admin-list-editor__hint">{hint}</p> : null}
         </div>
       </div>
-      {urls.length > 0 ? (
+      {items.length > 0 ? (
         <div className="admin-gallery-grid">
-          {urls.map((url, index) => (
-            <div key={`${url}-${index}`} className="admin-gallery-thumb">
+          {items.map((item, index) => (
+            <div key={`${item.displayUrl}-${index}`} className="admin-gallery-thumb">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={url} alt="" />
+              <img src={item.displayUrl} alt="" />
+              {onUpload && cropAspect != null ? (
+                <button
+                  type="button"
+                  className="admin-gallery-thumb__recrop"
+                  aria-label="Обрезать заново"
+                  onClick={() => openRecrop(item, index)}
+                >
+                  ✂
+                </button>
+              ) : null}
               <button
                 type="button"
                 className="admin-gallery-thumb__remove"
                 aria-label="Удалить фото"
-                onClick={() => onChange(urls.filter((_, i) => i !== index))}
+                onClick={() => onChange(items.filter((_, i) => i !== index))}
               >
                 ×
               </button>
@@ -211,16 +264,22 @@ export function AdminGalleryEditor({
       )}
       {onUpload ? (
         <label className="mt-3 block text-sm text-[var(--text-muted)]">
-          Загрузить фото
+          {cropAspect != null ? `Загрузить фото (кроп ${aspectLabel})` : "Загрузить фото"}
           <input
             type="file"
             accept="image/*"
             className="mt-1"
-            onChange={async (e) => {
+            onChange={(e) => {
               const file = e.target.files?.[0];
               e.target.value = "";
               if (!file) return;
-              setCropSrc(URL.createObjectURL(file));
+              if (cropAspect != null) openCropWithFile(file);
+              else {
+                void (async () => {
+                  const url = await onUpload(file);
+                  onChange([...items, { displayUrl: url, fullUrl: url }]);
+                })();
+              }
             }}
           />
         </label>

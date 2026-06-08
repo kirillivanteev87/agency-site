@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 import type SMTPTransport from "nodemailer/lib/smtp-transport";
 
-export type LeadSource = "contact" | "ai-chat";
+export type LeadSource = "contact" | "ai-chat" | "brief";
 
 export type LeadPayload = {
   source: LeadSource;
@@ -24,7 +24,9 @@ export function getLeadEmailConfigStatus() {
 }
 
 function sourceLabel(source: LeadSource) {
-  return source === "ai-chat" ? "AI-чат на сайте" : "Форма на сайте";
+  if (source === "ai-chat") return "AI-чат на сайте";
+  if (source === "brief") return "Бриф на сайте";
+  return "Форма на сайте";
 }
 
 function normalizeFromAddress() {

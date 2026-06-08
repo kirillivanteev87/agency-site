@@ -5,6 +5,7 @@ export const SECTION_IDS = [
   "projects",
   "cases",
   "services",
+  "pricing",
   "faq",
   "contact",
 ] as const;
@@ -25,6 +26,7 @@ export const SECTION_LABELS: Record<SectionId, string> = {
   projects: "Портфолио",
   cases: "Кейсы",
   services: "Услуги",
+  pricing: "Тарифы",
   faq: "FAQ",
   contact: "Контакты",
 };
@@ -36,6 +38,7 @@ export const DEFAULT_SPACING: SpacingConfig = {
   projects: { paddingTop: 64, paddingBottom: 96 },
   cases: { paddingTop: 64, paddingBottom: 96 },
   services: { paddingTop: 64, paddingBottom: 96 },
+  pricing: { paddingTop: 64, paddingBottom: 80 },
   faq: { paddingTop: 64, paddingBottom: 96 },
   contact: { paddingTop: 64, paddingBottom: 96 },
 };

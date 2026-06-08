@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import Cropper, { type Area } from "react-easy-crop";
-import { getCroppedImageBlob } from "@/lib/crop-image";
+import { formatCropAspectLabel, getCroppedImageBlob } from "@/lib/crop-image";
 
 type Props = {
   open: boolean;
@@ -49,7 +49,7 @@ export function ImageCropDialog({ open, imageSrc, aspect, title = "Обрезк�
             {title}
           </h2>
           <p className="mt-1 text-xs text-[var(--text-muted)]">
-            Перетащите и масштабируйте — в карточке на сайте видна только выделенная область (4∶3).
+            Перетащите и масштабируйте — на сайте видна только выделенная область ({formatCropAspectLabel(aspect)}).
           </p>
         </div>
 

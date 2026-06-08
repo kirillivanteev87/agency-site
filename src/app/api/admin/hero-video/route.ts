@@ -1,8 +1,7 @@
-import { mkdir, writeFile } from "fs/promises";
-import path from "path";
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-api";
+import { buildMediaFileName, putMedia } from "@/lib/media-storage";
 import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
@@ -21,11 +20,6 @@ function isVideoFile(file: File) {
     return true;
   }
   return VIDEO_EXT.test(file.name);
-}
-
-function safeFileBaseName(originalName: string) {
-  const cleaned = originalName.replace(/[^a-zA-Z0-9._-]/g, "_").replace(/^_+|_+$/g, "");
-  return cleaned.length >= 2 && cleaned !== "_" ? cleaned : "video.mp4";
 }
 
 export async function POST(request: Request) {
@@ -54,28 +48,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Видео слишком большое (макс. 100 МБ)" }, { status: 400 });
     }
 
-    const uploadsDir = path.join(process.cwd(), "public", "video");
-    await mkdir(uploadsDir, { recursive: true });
-
-    const safeName = `${Date.now()}-${safeFileBaseName(file.name || "video.mp4")}`;
+    const fileName = buildMediaFileName(file.name || "video.mp4", "video.mp4");
     const buffer = Buffer.from(await file.arrayBuffer());
+    const { url } = await putMedia(buffer, "video", fileName, file.type || undefined);
 
-    try {
-      await writeFile(path.join(uploadsDir, safeName), buffer);
-    } catch (writeErr) {
-      const code =
-        writeErr && typeof writeErr === "object" && "code" in writeErr
-          ? String((writeErr as NodeJS.ErrnoException).code)
-          : "";
-      const hint =
-        code === "EROFS" || code === "EACCES"
-          ? " На serverless-хостинге запись в public недоступна — используйте внешний URL."
-          : "";
-      console.error("[hero-video] writeFile failed:", writeErr);
-      return NextResponse.json({ error: `Не удалось сохранить файл.${hint}` }, { status: 500 });
-    }
-
-    const url = `/video/${safeName}`;
     const field = variant === "light" ? "heroVideoUrlLight" : "heroVideoUrl";
 
     const settings = await prisma.siteSettings.upsert({

@@ -19,9 +19,14 @@ const LABELS: Record<string, string> = {
   brandName: "Название бренда",
   brandHighlightText: "Логотип — выделяемые буквы/текст",
   brandHighlightColor: "Логотип — цвет выделения (hex)",
-  heroTitle: "Hero — главная строка заголовка",
-  heroHighlight: "Hero — акцентная строка (красная)",
+  logoMode: "Логотип — режим (text или image)",
+  logoImageUrl: "Логотип — URL картинки",
+  heroTitle: "Hero — H1, белая часть (Enter — новая строка)",
+  heroHighlight: "Hero — H1, красная часть (Enter — новая строка)",
   heroSubtitle: "Hero — подзаголовок",
+  heroBenefit1: "Hero — преимущество 1 (с галочкой)",
+  heroBenefit2: "Hero — преимущество 2 (с галочкой)",
+  heroBenefit3: "Hero — преимущество 3 (с галочкой)",
   heroMeta: "Hero — строка под кнопками",
   heroVideoUrl: "Hero — URL видео (тёмная тема)",
   heroVideoUrlLight: "Hero — URL видео (светлая тема)",
@@ -32,6 +37,39 @@ const LABELS: Record<string, string> = {
   addresses: "Адреса (JSON массив строк)",
   socialLinks: "Соцсети (JSON: label, url)",
   footerCopyright: "Копирайт в подвале",
+  footerDescriptor: "Описание студии в подвале",
+  footerBehanceUrl: "Behance, URL в подвале",
+  footerGithubUrl: "GitHub, URL в подвале",
+  contactEyebrow: "Контакты — подпись над заголовком",
+  contactTitle: "Контакты — заголовок",
+  contactSubtitle: "Контакты — подзаголовок",
+  contactBullet1: "Контакты — преимущество 1",
+  contactBullet2: "Контакты — преимущество 2",
+  contactBullet3: "Контакты — преимущество 3",
+  contactLabelPhone: "Контакты — подпись «Телефон»",
+  contactLabelEmail: "Контакты — подпись «Email»",
+  contactLabelAddress: "Контакты — подпись «Адрес»",
+  contactWhatsappUrl: "Контакты — WhatsApp, URL при клике",
+  contactWhatsappLabel: "Контакты — WhatsApp, подпись карточки",
+  contactWhatsappLinkText: "Контакты — WhatsApp, текст ссылки",
+  contactTelegramUrl: "Контакты — Telegram, URL при клике",
+  contactTelegramLabel: "Контакты — Telegram, подпись карточки",
+  contactTelegramLinkText: "Контакты — Telegram, текст ссылки",
+  contactMaxUrl: "Контакты — MAX, URL при клике",
+  contactMaxLabel: "Контакты — MAX, подпись карточки",
+  contactMaxLinkText: "Контакты — MAX, текст ссылки",
+  contactFormTitle: "Форма — заголовок",
+  contactFormLead: "Форма — вводный текст",
+  contactNameLabel: "Форма — имя, подпись",
+  contactNamePlaceholder: "Форма — имя, placeholder",
+  contactEmailLabel: "Форма — email, подпись",
+  contactEmailPlaceholder: "Форма — email, placeholder",
+  contactPhoneLabel: "Форма — телефон, подпись",
+  contactPhonePlaceholder: "Форма — телефон, placeholder",
+  contactMessageLabel: "Форма — сообщение, подпись",
+  contactMessagePlaceholder: "Форма — сообщение, placeholder",
+  contactSuccessMessage: "Форма — успешная отправка",
+  contactConsentText: "Форма — согласие на данные",
 };
 
 const BRAND_HIGHLIGHT_HELP =
@@ -64,14 +102,50 @@ const HIGHLIGHT_BY_FIELD: Partial<Record<SiteSettingsField, ContentHighlightFiel
   heroTitle: "heroTitle",
   heroHighlight: "heroHighlight",
   heroSubtitle: "heroSubtitle",
+  heroBenefit1: "heroBenefit1",
+  heroBenefit2: "heroBenefit2",
+  heroBenefit3: "heroBenefit3",
   heroMeta: "heroMeta",
   statValue: "statValue",
   statText: "statText",
   footerCopyright: "footerCopyright",
+  footerDescriptor: "footerDescriptor",
+  footerBehanceUrl: "footerBehanceUrl",
+  footerGithubUrl: "footerGithubUrl",
   phones: "phones",
   emails: "emails",
   addresses: "addresses",
   socialLinks: "socialLinks",
+  contactEyebrow: "contactEyebrow",
+  contactTitle: "contactTitle",
+  contactSubtitle: "contactSubtitle",
+  contactBullet1: "contactBullet1",
+  contactBullet2: "contactBullet2",
+  contactBullet3: "contactBullet3",
+  contactLabelPhone: "contactLabelPhone",
+  contactLabelEmail: "contactLabelEmail",
+  contactLabelAddress: "contactLabelAddress",
+  contactWhatsappUrl: "contactWhatsappUrl",
+  contactWhatsappLabel: "contactWhatsappLabel",
+  contactWhatsappLinkText: "contactWhatsappLinkText",
+  contactTelegramUrl: "contactTelegramUrl",
+  contactTelegramLabel: "contactTelegramLabel",
+  contactTelegramLinkText: "contactTelegramLinkText",
+  contactMaxUrl: "contactMaxUrl",
+  contactMaxLabel: "contactMaxLabel",
+  contactMaxLinkText: "contactMaxLinkText",
+  contactFormTitle: "contactFormTitle",
+  contactFormLead: "contactFormLead",
+  contactNameLabel: "contactNameLabel",
+  contactNamePlaceholder: "contactNamePlaceholder",
+  contactEmailLabel: "contactEmailLabel",
+  contactEmailPlaceholder: "contactEmailPlaceholder",
+  contactPhoneLabel: "contactPhoneLabel",
+  contactPhonePlaceholder: "contactPhonePlaceholder",
+  contactMessageLabel: "contactMessageLabel",
+  contactMessagePlaceholder: "contactMessagePlaceholder",
+  contactSuccessMessage: "contactSuccessMessage",
+  contactConsentText: "contactConsentText",
 };
 
 async function api<T>(url: string, init?: RequestInit): Promise<T> {
@@ -181,12 +255,12 @@ export function ContentEditor() {
       );
     }
 
-    if (field === "heroSubtitle") {
+    if (field === "heroSubtitle" || field === "heroTitle" || field === "heroHighlight") {
       return (
         <textarea
           id={inputId}
           value={value}
-          rows={5}
+          rows={field === "heroSubtitle" ? 5 : 3}
           className="mt-2 w-full rounded-[var(--radius)] border border-[var(--border)] bg-[var(--bg-card)] px-3 py-2 text-[var(--text)]"
           onChange={(e) => updateField(field, e.target.value)}
           onFocus={() => emitHighlight(field)}

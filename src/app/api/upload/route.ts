@@ -1,7 +1,6 @@
-import { mkdir, writeFile } from "fs/promises";
-import path from "path";
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-api";
+import { buildMediaFileName, putMedia } from "@/lib/media-storage";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -27,12 +26,6 @@ function isVideoFile(file: File) {
     return true;
   }
   return VIDEO_EXT.test(file.name);
-}
-
-function safeFileBaseName(originalName: string, category: "image" | "video") {
-  const cleaned = originalName.replace(/[^a-zA-Z0-9._-]/g, "_").replace(/^_+|_+$/g, "");
-  if (cleaned.length >= 2 && cleaned !== "_") return cleaned;
-  return category === "video" ? "video.mp4" : "image";
 }
 
 export async function POST(request: Request) {
@@ -75,36 +68,19 @@ export async function POST(request: Request) {
       }
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const folder = category === "video" ? "video" : "uploads";
+    const fallback = category === "video" ? "video.mp4" : "image";
+    const fileName = buildMediaFileName(file.name || "file", fallback);
 
-    const publicSubdir = category === "video" ? "video" : "uploads";
-    const uploadsDir = path.join(process.cwd(), "public", publicSubdir);
-    await mkdir(uploadsDir, { recursive: true });
+    const { url } = await putMedia(buffer, folder, fileName, file.type || undefined);
 
-    const base = safeFileBaseName(file.name || "file", category);
-    const safeName = `${Date.now()}-${base}`;
-
-    try {
-      await writeFile(path.join(uploadsDir, safeName), buffer);
-    } catch (writeErr) {
-      const code = writeErr && typeof writeErr === "object" && "code" in writeErr ? String((writeErr as NodeJS.ErrnoException).code) : "";
-      const hint =
-        code === "EROFS" || code === "EACCES"
-          ? " Диск недоступен для записи (часто на serverless-хостинге: Vercel и др. не пишут в public — загрузите видео во внешнее хранилище и вставьте URL)."
-          : "";
-      console.error("[upload] writeFile failed:", writeErr);
-      return NextResponse.json(
-        { error: `Не удалось сохранить файл на сервер.${hint}` },
-        { status: 500 },
-      );
-    }
-
-    return NextResponse.json({ url: `/${publicSubdir}/${safeName}` });
+    return NextResponse.json({ url });
   } catch (e) {
+    const message = e instanceof Error ? e.message : "Ошибка при приёме файла";
     console.error("[upload] failed:", e);
     return NextResponse.json(
-      { error: "Ошибка при приёме файла (слишком большой запрос или обрыв сети)." },
+      { error: message.includes("сохранить") ? message : "Ошибка при приёме файла (слишком большой запрос или обрыв сети)." },
       { status: 500 },
     );
   }

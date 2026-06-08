@@ -5,6 +5,7 @@ const HTML_IDS: Partial<Record<SectionId, string>> = {
   projects: "projects",
   cases: "cases",
   services: "services",
+  pricing: "pricing",
   faq: "faq",
 };
 

@@ -4,20 +4,14 @@ import { requireAdmin } from "@/lib/admin-api";
 import { prisma } from "@/lib/prisma";
 import { ensureStoredButtonLabelsJson } from "@/lib/button-labels";
 import { pickSiteSettingsPayload } from "@/lib/site-settings-fields";
+import { formatStalePrismaError } from "@/lib/prisma-stale";
 
 export const runtime = "nodejs";
 
 function formatSettingsError(e: unknown): string {
   const raw = e instanceof Error ? e.message : "Ошибка сервера";
-  if (
-    raw.includes("Unknown argument") &&
-    (raw.includes("heroVideoUrl") || raw.includes("heroVideoUrlLight"))
-  ) {
-    return "Схема БД уже с полями heroVideoUrl / heroVideoUrlLight, но сервер использует старый Prisma Client. Остановите next dev, выполните npx prisma generate и снова запустите npm run dev.";
-  }
-  if (raw.includes("Unknown argument")) {
-    return "Устарел Prisma Client относительно схемы. Остановите dev-сервер, выполните npx prisma generate и запустите снова.";
-  }
+  const stale = formatStalePrismaError(raw);
+  if (stale) return stale;
   return raw.length > 400 ? `${raw.slice(0, 400)}…` : raw;
 }
 

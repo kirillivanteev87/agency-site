@@ -10,11 +10,11 @@ export function CaseStudies({ caseStudies, settings }: Pick<SiteContent, "caseSt
   return (
     <div>
       <SectionLead
-        eyebrow="Кейсы"
-        title="Цифры, за которые нас выбирают"
-        subtitle="Показываем не только дизайн, но и бизнес-эффект: сроки, рост заявок, экономия времени команды. Каждый кейс — отдельная страница с подробностями."
+        eyebrow="Products"
+        title="Собственные разработки команды"
+        subtitle="Внутренние сервисы и SaaS-продукты, созданные нашей студией. От идеи и UX до архитектуры, интерфейсов и запуска в продакшн."
       />
-      <div className="space-y-16">
+      <div className="space-y-24 md:space-y-16">
         {caseStudies.map((item, index) => {
           const metrics = parseCaseStudyMetrics(item.landingMetrics, index);
           return (
@@ -32,13 +32,16 @@ export function CaseStudies({ caseStudies, settings }: Pick<SiteContent, "caseSt
                     src={item.imageUrl}
                     alt={item.title}
                     fill
-                    className="transition-transform duration-500 ease-out group-hover:scale-[1.05]"
+                    className="transition-transform duration-500 ease-out [@media(hover:hover)_and_(pointer:fine)]:group-hover:scale-[1.05]"
                   />
                 </Link>
                 <div>
                   <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-accent">{item.tag}</p>
                   <h3 className="mb-4 text-3xl font-bold">
-                    <Link href={`/cases/${item.id}`} className="transition-colors hover:text-accent">
+                    <Link
+                      href={`/cases/${item.id}`}
+                      className="transition-colors [@media(hover:hover)_and_(pointer:fine)]:hover:text-accent"
+                    >
                       {item.title}
                     </Link>
                   </h3>

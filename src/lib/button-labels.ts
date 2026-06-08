@@ -30,14 +30,14 @@ export type ButtonLabels = Record<ButtonLabelKey, string>;
 export const DEFAULT_BUTTON_LABELS: ButtonLabels = {
   headerCta: "Бесплатная консультация",
   heroPrimary: "Получить смету за 24 часа",
-  heroSecondary: "Смотреть кейсы с цифрами",
+  heroSecondary: "Заполнить бриф",
   statsCta: "Обсудить ваш проект",
   serviceCard: "Узнать стоимость →",
   servicesCtaPrimary: "Получить рекомендацию",
   servicesCtaSecondary: "Задать вопрос в FAQ",
   projectsCard: "Подробнее о проекте",
   projectsCtaPrimary: "Получить предложение",
-  projectsCtaSecondary: "Смотреть кейсы",
+  projectsCtaSecondary: "Заполнить бриф",
   casesCard: "Хочу похожий результат",
   faqCta: "Задать свой вопрос",
   contactSubmit: "Получить консультацию",
@@ -108,6 +108,11 @@ function isButtonLabelKey(k: string): k is ButtonLabelKey {
   return (BUTTON_LABEL_KEYS as readonly string[]).includes(k);
 }
 
+const LEGACY_VIEW_CASES_LABELS = new Set([
+  "Смотреть кейсы с цифрами",
+  "Смотреть кейсы",
+]);
+
 export function parseButtonLabels(raw: string | null | undefined): ButtonLabels {
   const merged = { ...DEFAULT_BUTTON_LABELS };
   if (!raw?.trim()) return merged;
@@ -122,6 +127,14 @@ export function parseButtonLabels(raw: string | null | undefined): ButtonLabels 
   } catch {
     /* legacy / invalid */
   }
+
+  if (LEGACY_VIEW_CASES_LABELS.has(merged.heroSecondary)) {
+    merged.heroSecondary = DEFAULT_BUTTON_LABELS.heroSecondary;
+  }
+  if (LEGACY_VIEW_CASES_LABELS.has(merged.projectsCtaSecondary)) {
+    merged.projectsCtaSecondary = DEFAULT_BUTTON_LABELS.projectsCtaSecondary;
+  }
+
   return merged;
 }
 

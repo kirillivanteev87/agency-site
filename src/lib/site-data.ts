@@ -3,7 +3,38 @@ import { buildCaseStudyLandingView } from "./case-study-landing";
 import { buildProjectLandingView } from "./project-landing";
 import { parseJsonArray } from "./parse-json";
 import { DEFAULT_BUTTON_LABELS, parseButtonLabels, type ButtonLabels } from "./button-labels";
+import { parseLogoImageUrl, parseLogoMode } from "./logo-settings";
 import { DEFAULT_SPACING, parseSpacingConfig, type SpacingConfig } from "./section-spacing";
+import { mapPricingPlan } from "./pricing";
+import { DEFAULT_CONTACT_SECTION } from "./contact-defaults";
+import { DEFAULT_FOOTER } from "./footer-defaults";
+import { DEFAULT_PRICING_SECTION } from "./pricing-defaults";
+import { filterFooterSocialLinks } from "./footer-social-links";
+import {
+  DEFAULT_HERO_VIDEO_DARK,
+  DEFAULT_HERO_VIDEO_LIGHT,
+  resolveHeroVideoPosterUrl,
+  resolveHeroVideoUrl,
+} from "./hero-video-urls";
+import type { PricingPlan } from "@prisma/client";
+
+async function fetchPricingPlans(): Promise<PricingPlan[]> {
+  const delegate = (
+    prisma as unknown as { pricingPlan?: { findMany: (args: object) => Promise<PricingPlan[]> } }
+  ).pricingPlan;
+  if (!delegate?.findMany) {
+    console.warn(
+      "[getSiteContent] Prisma Client без модели pricingPlan — выполните npx prisma generate и перезапустите dev-сервер",
+    );
+    return [];
+  }
+  try {
+    return await delegate.findMany({ orderBy: { sortOrder: "asc" } });
+  } catch (e) {
+    console.error("[getSiteContent] pricingPlan.findMany failed:", e);
+    return [];
+  }
+}
 
 export type { ButtonLabels };
 export { DEFAULT_BUTTON_LABELS, parseButtonLabels };
@@ -42,13 +73,14 @@ export async function getCaseStudyLanding(id: number) {
 }
 
 export async function getSiteContent() {
-  const [settings, heroFeatures, projects, caseStudies, services, faqs] =
+  const [settings, heroFeatures, projects, caseStudies, services, pricingPlans, faqs] =
     await Promise.all([
       prisma.siteSettings.findUnique({ where: { id: 1 } }),
       prisma.heroFeature.findMany({ orderBy: { sortOrder: "asc" } }),
       prisma.project.findMany({ orderBy: { sortOrder: "asc" } }),
       prisma.caseStudy.findMany({ orderBy: { sortOrder: "asc" } }),
       prisma.service.findMany({ orderBy: { sortOrder: "asc" } }),
+      fetchPricingPlans(),
       prisma.faq.findMany({ orderBy: { sortOrder: "asc" } }),
     ]);
 
@@ -60,26 +92,90 @@ export async function getSiteContent() {
       brandName: s.brandName,
       brandHighlightText: s.brandHighlightText ?? "",
       brandHighlightColor: s.brandHighlightColor ?? "",
+      logoMode: parseLogoMode(s.logoMode),
+      logoImageUrl: parseLogoImageUrl(s.logoImageUrl),
       heroTitle: s.heroTitle,
       heroHighlight: s.heroHighlight,
       heroSubtitle: s.heroSubtitle,
       heroMeta: s.heroMeta ?? "",
-      heroVideoUrl: s.heroVideoUrl ?? "",
-      heroVideoUrlLight: s.heroVideoUrlLight ?? "",
+      heroBenefit1: s.heroBenefit1 ?? "Рост заявок и продаж",
+      heroBenefit2: s.heroBenefit2 ?? "Сроки и бюджет в договоре",
+      heroBenefit3: s.heroBenefit3 ?? "Поддержка после запуска",
+      heroVideoUrl: resolveHeroVideoUrl(s.heroVideoUrl, DEFAULT_HERO_VIDEO_DARK),
+      heroVideoUrlLight: resolveHeroVideoUrl(s.heroVideoUrlLight, DEFAULT_HERO_VIDEO_LIGHT),
+      heroVideoPosterUrl: resolveHeroVideoPosterUrl(
+        resolveHeroVideoUrl(s.heroVideoUrl, DEFAULT_HERO_VIDEO_DARK),
+      ),
+      heroVideoPosterUrlLight: resolveHeroVideoPosterUrl(
+        resolveHeroVideoUrl(s.heroVideoUrlLight, DEFAULT_HERO_VIDEO_LIGHT),
+      ),
       statValue: s.statValue,
       statText: s.statText,
       footerCopyright: s.footerCopyright,
+      footerDescriptor: s.footerDescriptor?.trim() || DEFAULT_FOOTER.footerDescriptor,
+      footerBehanceUrl: s.footerBehanceUrl?.trim() || DEFAULT_FOOTER.footerBehanceUrl,
+      footerGithubUrl: s.footerGithubUrl?.trim() || DEFAULT_FOOTER.footerGithubUrl,
       phones: parseJsonArray<string>(s.phones, []),
       emails: parseJsonArray<string>(s.emails, []),
       addresses: parseJsonArray<string>(s.addresses, []),
-      socialLinks: parseJsonArray<SocialLink>(s.socialLinks, []),
+      socialLinks: filterFooterSocialLinks(parseJsonArray<SocialLink>(s.socialLinks, [])),
       buttonLabels: parseButtonLabels(s.buttonLabels),
+      pricingEyebrow: s.pricingEyebrow?.trim() || DEFAULT_PRICING_SECTION.pricingEyebrow,
+      pricingTitle: s.pricingTitle?.trim() || DEFAULT_PRICING_SECTION.pricingTitle,
+      pricingSubtitle: s.pricingSubtitle?.trim() || DEFAULT_PRICING_SECTION.pricingSubtitle,
+      pricingNote: s.pricingNote?.trim() || DEFAULT_PRICING_SECTION.pricingNote,
+      contactEyebrow: s.contactEyebrow?.trim() || DEFAULT_CONTACT_SECTION.contactEyebrow,
+      contactTitle: s.contactTitle?.trim() || DEFAULT_CONTACT_SECTION.contactTitle,
+      contactSubtitle: s.contactSubtitle?.trim() || DEFAULT_CONTACT_SECTION.contactSubtitle,
+      contactBullet1: s.contactBullet1?.trim() || DEFAULT_CONTACT_SECTION.contactBullet1,
+      contactBullet2: s.contactBullet2?.trim() || DEFAULT_CONTACT_SECTION.contactBullet2,
+      contactBullet3: s.contactBullet3?.trim() || DEFAULT_CONTACT_SECTION.contactBullet3,
+      contactLabelPhone: s.contactLabelPhone?.trim() || DEFAULT_CONTACT_SECTION.contactLabelPhone,
+      contactLabelEmail: s.contactLabelEmail?.trim() || DEFAULT_CONTACT_SECTION.contactLabelEmail,
+      contactLabelAddress: s.contactLabelAddress?.trim() || DEFAULT_CONTACT_SECTION.contactLabelAddress,
+      contactWhatsappUrl: s.contactWhatsappUrl?.trim() || DEFAULT_CONTACT_SECTION.contactWhatsappUrl,
+      contactWhatsappLabel: s.contactWhatsappLabel?.trim() || DEFAULT_CONTACT_SECTION.contactWhatsappLabel,
+      contactWhatsappLinkText:
+        s.contactWhatsappLinkText?.trim() ||
+        s.contactWhatsappLabel?.trim() ||
+        DEFAULT_CONTACT_SECTION.contactWhatsappLinkText,
+      contactTelegramUrl: s.contactTelegramUrl?.trim() || DEFAULT_CONTACT_SECTION.contactTelegramUrl,
+      contactTelegramLabel: s.contactTelegramLabel?.trim() || DEFAULT_CONTACT_SECTION.contactTelegramLabel,
+      contactTelegramLinkText:
+        s.contactTelegramLinkText?.trim() ||
+        s.contactTelegramLabel?.trim() ||
+        DEFAULT_CONTACT_SECTION.contactTelegramLinkText,
+      contactMaxUrl: s.contactMaxUrl?.trim() || DEFAULT_CONTACT_SECTION.contactMaxUrl,
+      contactMaxLabel: s.contactMaxLabel?.trim() || DEFAULT_CONTACT_SECTION.contactMaxLabel,
+      contactMaxLinkText:
+        s.contactMaxLinkText?.trim() ||
+        s.contactMaxLabel?.trim() ||
+        DEFAULT_CONTACT_SECTION.contactMaxLinkText,
+      contactFormTitle: s.contactFormTitle?.trim() || DEFAULT_CONTACT_SECTION.contactFormTitle,
+      contactFormLead: s.contactFormLead?.trim() || DEFAULT_CONTACT_SECTION.contactFormLead,
+      contactNameLabel: s.contactNameLabel?.trim() || DEFAULT_CONTACT_SECTION.contactNameLabel,
+      contactNamePlaceholder:
+        s.contactNamePlaceholder?.trim() || DEFAULT_CONTACT_SECTION.contactNamePlaceholder,
+      contactEmailLabel: s.contactEmailLabel?.trim() || DEFAULT_CONTACT_SECTION.contactEmailLabel,
+      contactEmailPlaceholder:
+        s.contactEmailPlaceholder?.trim() || DEFAULT_CONTACT_SECTION.contactEmailPlaceholder,
+      contactPhoneLabel: s.contactPhoneLabel?.trim() || DEFAULT_CONTACT_SECTION.contactPhoneLabel,
+      contactPhonePlaceholder:
+        s.contactPhonePlaceholder?.trim() || DEFAULT_CONTACT_SECTION.contactPhonePlaceholder,
+      contactMessageLabel:
+        s.contactMessageLabel?.trim() || DEFAULT_CONTACT_SECTION.contactMessageLabel,
+      contactMessagePlaceholder:
+        s.contactMessagePlaceholder?.trim() || DEFAULT_CONTACT_SECTION.contactMessagePlaceholder,
+      contactSuccessMessage:
+        s.contactSuccessMessage?.trim() || DEFAULT_CONTACT_SECTION.contactSuccessMessage,
+      contactConsentText: s.contactConsentText?.trim() || DEFAULT_CONTACT_SECTION.contactConsentText,
     },
     sectionSpacing,
     heroFeatures,
     projects,
     caseStudies,
     services,
+    pricingPlans: pricingPlans.map(mapPricingPlan),
     faqs,
   };
 }

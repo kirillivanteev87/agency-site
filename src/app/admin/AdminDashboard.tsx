@@ -21,6 +21,8 @@ import {
 } from "@/lib/button-labels";
 import { AdminButtonsPanel } from "./AdminButtonsPanel";
 import { AdminListPanel } from "./AdminListPanel";
+import { AdminContactPanel } from "./AdminContactPanel";
+import { AdminPricingPanel } from "./AdminPricingPanel";
 import { AdminSettingsPanel } from "./AdminSettingsPanel";
 import { AdminShell } from "./AdminShell";
 import { AdminSitePreview } from "./AdminSitePreview";
@@ -63,6 +65,14 @@ const TAB_META: Record<
     title: "Услуги",
     subtitle: "Карточки в секции «Услуги»",
   },
+  pricing: {
+    title: "Тарифы",
+    subtitle: "Пакеты и цены перед FAQ на главной",
+  },
+  contact: {
+    title: "Форма заявки",
+    subtitle: "Заголовок секции «Контакты», карточки и поля формы на главной",
+  },
   marketplace: {
     title: "Marketplace",
     subtitle: "Продукты по подписке на /marketplace",
@@ -94,8 +104,9 @@ export function AdminDashboard() {
   const [emailTestError, setEmailTestError] = useState("");
   const [buttonsSyncKey, setButtonsSyncKey] = useState(0);
 
-  const resourceMap: Record<Exclude<AdminDashboardTab, "settings" | "buttons">, string> = {
+  const resourceMap: Record<Exclude<AdminDashboardTab, "settings" | "buttons" | "contact">, string> = {
     services: "services",
+    pricing: "pricing-plans",
     marketplace: "marketplace-apps",
     faq: "faqs",
     hero: "hero-features",
@@ -111,7 +122,7 @@ export function AdminDashboard() {
     return out;
   }, [settings]);
 
-  const livePreview = tab === "settings" || tab === "buttons";
+  const livePreview = tab === "settings" || tab === "buttons" || tab === "contact";
   const { iframeRef, ready, reloadKey, highlightField, highlightButton, reloadPreview } = useSitePreview(
     previewSettings,
     livePreview,
@@ -123,7 +134,7 @@ export function AdminDashboard() {
   const load = useCallback(async () => {
     setMsg("");
     setError("");
-    if (tab === "settings" || tab === "buttons") {
+    if (tab === "settings" || tab === "buttons" || tab === "contact") {
       setListLoading(false);
       const data = await api<Record<string, unknown>>("/api/admin/settings");
       setSettings(normalizeSettings(data));
@@ -332,7 +343,7 @@ export function AdminDashboard() {
   }
 
   async function createItem() {
-    const resource = resourceMap[tab as Exclude<AdminDashboardTab, "settings" | "buttons">];
+    const resource = resourceMap[tab as Exclude<AdminDashboardTab, "settings" | "buttons" | "contact">];
     const templates: Record<string, Record<string, unknown>> = {
       services: { icon: "layout", title: "Услуга", description: "", sortOrder: list.length },
       "marketplace-apps": {
@@ -346,6 +357,18 @@ export function AdminDashboard() {
         features: JSON.stringify(["Функция 1", "Функция 2"]),
         featured: false,
         published: true,
+        sortOrder: list.length,
+      },
+      "pricing-plans": {
+        name: "Новый тариф",
+        eyebrow: "",
+        summary: "",
+        audienceLabel: "",
+        outcomeText: "",
+        price: "0",
+        features: JSON.stringify(["Пункт списка"]),
+        featured: false,
+        badgeLabel: "",
         sortOrder: list.length,
       },
       faqs: { question: "Вопрос?", answer: "Ответ", sortOrder: list.length },
@@ -363,7 +386,7 @@ export function AdminDashboard() {
   async function updateItem(id: number, data: Record<string, unknown>) {
     setError("");
     try {
-      const resource = resourceMap[tab as Exclude<AdminDashboardTab, "settings" | "buttons">];
+      const resource = resourceMap[tab as Exclude<AdminDashboardTab, "settings" | "buttons" | "contact">];
       await api(`/api/admin/${resource}/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -381,7 +404,7 @@ export function AdminDashboard() {
 
   async function deleteItem(id: number) {
     if (!confirm("Удалить?")) return;
-    const resource = resourceMap[tab as Exclude<AdminDashboardTab, "settings" | "buttons">];
+    const resource = resourceMap[tab as Exclude<AdminDashboardTab, "settings" | "buttons" | "contact">];
     await api(`/api/admin/${resource}/${id}`, { method: "DELETE" });
     await load();
     reloadPreview();
@@ -540,6 +563,31 @@ export function AdminDashboard() {
           onSave={updateItem}
           onDelete={deleteItem}
           onUpload={uploadFile}
+        />
+      ) : null}
+
+      {tab === "contact" && settings ? (
+        <AdminContactPanel
+          settings={settings}
+          onChange={setSettings}
+          onHighlight={livePreview ? highlightField : undefined}
+          onSave={() => void saveSettings()}
+          saving={saving}
+        />
+      ) : null}
+
+      {tab === "pricing" ? (
+        <AdminPricingPanel
+          items={list}
+          loading={listLoading}
+          onAdd={createItem}
+          onSave={updateItem}
+          onDelete={deleteItem}
+          onSectionSaved={() => {
+            setMsg("Сохранено");
+            reloadPreview();
+            router.refresh();
+          }}
         />
       ) : null}
 

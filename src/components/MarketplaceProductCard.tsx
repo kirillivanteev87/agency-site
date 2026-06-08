@@ -38,7 +38,7 @@ export function MarketplaceProductCard({ app, index, subscribeLabel }: Props) {
             src={app.imageUrl}
             alt=""
             fill
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+            className="object-cover transition-transform duration-500 [@media(hover:hover)_and_(pointer:fine)]:group-hover:scale-[1.03]"
           />
         ) : (
           <div

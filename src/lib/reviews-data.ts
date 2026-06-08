@@ -15,6 +15,71 @@ export type ReviewCardData = {
   sourceName: string;
 };
 
+export type WhyChooseUsBenefit = {
+  id: string;
+  text: string;
+};
+
+export type WhyChooseUsStat = {
+  id: string;
+  value: string;
+  label: string;
+  image: string;
+  accent?: boolean;
+};
+
+export const WHY_CHOOSE_US = {
+  title: "почему выбирают нас",
+  headline:
+    "ИНЭРТА — надежный поставщик железобетонных опор для линий электропередач",
+  badge: "Работаем с 2018 года",
+  benefits: [
+    {
+      id: "production",
+      text: "Собственное производство железобетонных опор",
+    },
+    {
+      id: "standards",
+      text: "Соответствие ГОСТ и техническим регламентам",
+    },
+    {
+      id: "delivery",
+      text: "Оперативная поставка по всей России",
+    },
+    {
+      id: "support",
+      text: "Индивидуальный расчёт и сопровождение проекта",
+    },
+  ] satisfies WhyChooseUsBenefit[],
+  cta: {
+    label: "Запросить расчет",
+    href: "/#contact",
+  },
+  stats: [
+    {
+      id: "buyers",
+      value: "50+",
+      label: "Постоянных оптовых покупателей",
+      image: "/images/3dicons-target.webp",
+      accent: true,
+    },
+    {
+      id: "orders",
+      value: "1400+",
+      label: "Выполненных производственных заказов",
+      image: "/images/3dicons-trophy.webp",
+      accent: true,
+    },
+    {
+      id: "years",
+      value: "9",
+      label: "Лет присутствуем на рынке",
+      image: "/images/3dicons-rocket.webp",
+      accent: true,
+    },
+  ] satisfies WhyChooseUsStat[],
+} as const;
+
 export const REVIEWS_PAGE = {
   title: "отзывы",
   viewAllTop: "Смотреть все",

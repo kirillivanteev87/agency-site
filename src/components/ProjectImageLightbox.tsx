@@ -4,11 +4,12 @@ import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { SiteImage } from "./SiteImage";
+import type { DetailPhoto } from "@/lib/project-gallery";
 
 const SWIPE_PX = 48;
 
 type Props = {
-  urls: string[];
+  photos: DetailPhoto[];
   /** Индекс снимка, с которого открыли */
   startIndex: number;
   onClose: () => void;
@@ -16,10 +17,10 @@ type Props = {
   onIndexChange?: (index: number) => void;
 };
 
-export function ProjectImageLightbox({ urls, startIndex, onClose, onIndexChange }: Props) {
+export function ProjectImageLightbox({ photos, startIndex, onClose, onIndexChange }: Props) {
   const [mounted, setMounted] = useState(false);
   const [index, setIndex] = useState(() =>
-    Math.min(Math.max(0, startIndex), Math.max(0, urls.length - 1)),
+    Math.min(Math.max(0, startIndex), Math.max(0, photos.length - 1)),
   );
 
   const touchStartX = useRef<number | null>(null);
@@ -30,30 +31,30 @@ export function ProjectImageLightbox({ urls, startIndex, onClose, onIndexChange 
   }, []);
 
   useEffect(() => {
-    const clamped = Math.min(Math.max(0, startIndex), Math.max(0, urls.length - 1));
+    const clamped = Math.min(Math.max(0, startIndex), Math.max(0, photos.length - 1));
     setIndex(clamped);
-  }, [startIndex, urls.length]);
+  }, [startIndex, photos.length]);
 
   const goPrev = useCallback(() => {
-    if (urls.length <= 1) return;
+    if (photos.length <= 1) return;
     setIndex((prev) => {
-      const next = (prev - 1 + urls.length) % urls.length;
+      const next = (prev - 1 + photos.length) % photos.length;
       onIndexChange?.(next);
       return next;
     });
-  }, [urls.length, onIndexChange]);
+  }, [photos.length, onIndexChange]);
 
   const goNext = useCallback(() => {
-    if (urls.length <= 1) return;
+    if (photos.length <= 1) return;
     setIndex((prev) => {
-      const next = (prev + 1) % urls.length;
+      const next = (prev + 1) % photos.length;
       onIndexChange?.(next);
       return next;
     });
-  }, [urls.length, onIndexChange]);
+  }, [photos.length, onIndexChange]);
 
   useEffect(() => {
-    if (!mounted || urls.length === 0) return;
+    if (!mounted || photos.length === 0) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
@@ -67,7 +68,7 @@ export function ProjectImageLightbox({ urls, startIndex, onClose, onIndexChange 
       document.body.style.overflow = prev;
       document.removeEventListener("keydown", onKey);
     };
-  }, [mounted, urls.length, onClose, goPrev, goNext]);
+  }, [mounted, photos.length, onClose, goPrev, goNext]);
 
   useEffect(() => {
     thumbBtnRefs.current[index]?.scrollIntoView({
@@ -82,7 +83,7 @@ export function ProjectImageLightbox({ urls, startIndex, onClose, onIndexChange 
   }
 
   function handleTouchEnd(e: React.TouchEvent) {
-    if (touchStartX.current == null || urls.length <= 1) {
+    if (touchStartX.current == null || photos.length <= 1) {
       touchStartX.current = null;
       return;
     }
@@ -99,10 +100,11 @@ export function ProjectImageLightbox({ urls, startIndex, onClose, onIndexChange 
     onIndexChange?.(i);
   }
 
-  if (!mounted || typeof document === "undefined" || urls.length === 0) return null;
+  if (!mounted || typeof document === "undefined" || photos.length === 0) return null;
 
-  const url = urls[index];
-  if (!url) return null;
+  const photo = photos[index];
+  const fullSrc = photo?.fullUrl;
+  if (!fullSrc) return null;
 
   return createPortal(
     <div
@@ -119,7 +121,7 @@ export function ProjectImageLightbox({ urls, startIndex, onClose, onIndexChange 
         >
           <button
             type="button"
-            className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--bg-card)] p-2.5 text-white shadow-lg transition-colors hover:border-[var(--accent)] hover:bg-[var(--bg-card-hover)]"
+            className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--bg-card)] p-2.5 text-[var(--text)] shadow-lg transition-colors hover:border-[var(--accent)] hover:bg-[var(--bg-card-hover)]"
             aria-label="Закрыть"
             onClick={onClose}
           >
@@ -128,11 +130,11 @@ export function ProjectImageLightbox({ urls, startIndex, onClose, onIndexChange 
         </div>
 
         <div className="pointer-events-none relative flex min-h-0 flex-1 items-center justify-center px-2 md:px-8">
-          {urls.length > 1 && (
+          {photos.length > 1 && (
             <>
               <button
                 type="button"
-                className="pointer-events-auto absolute left-1 top-1/2 z-10 hidden -translate-y-1/2 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--bg-card)]/90 p-2 text-white backdrop-blur-sm transition-colors hover:border-[var(--accent)] sm:block md:left-3"
+                className="pointer-events-auto absolute left-1 top-1/2 z-10 hidden -translate-y-1/2 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--bg-card)]/90 p-2 text-[var(--text)] backdrop-blur-sm transition-colors hover:border-[var(--accent)] sm:block md:left-3"
                 aria-label="Предыдущее фото"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -143,7 +145,7 @@ export function ProjectImageLightbox({ urls, startIndex, onClose, onIndexChange 
               </button>
               <button
                 type="button"
-                className="pointer-events-auto absolute right-1 top-1/2 z-10 hidden -translate-y-1/2 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--bg-card)]/90 p-2 text-white backdrop-blur-sm transition-colors hover:border-[var(--accent)] sm:block md:right-3"
+                className="pointer-events-auto absolute right-1 top-1/2 z-10 hidden -translate-y-1/2 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--bg-card)]/90 p-2 text-[var(--text)] backdrop-blur-sm transition-colors hover:border-[var(--accent)] sm:block md:right-3"
                 aria-label="Следующее фото"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -163,7 +165,7 @@ export function ProjectImageLightbox({ urls, startIndex, onClose, onIndexChange 
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={url}
+              src={fullSrc}
               alt=""
               draggable={false}
               className="max-h-[min(72vh,calc(100dvh-220px))] max-w-full select-none object-contain shadow-2xl"
@@ -171,15 +173,15 @@ export function ProjectImageLightbox({ urls, startIndex, onClose, onIndexChange 
           </div>
         </div>
 
-        {urls.length > 1 && (
+        {photos.length > 1 && (
           <div
             className="pointer-events-auto shrink-0 border-t border-[var(--border)]/60 bg-black/50 px-3 pb-3 pt-2"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mx-auto flex max-w-full snap-x snap-mandatory gap-2 overflow-x-auto scroll-smooth py-1 [scrollbar-width:thin] [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[var(--border)] [&::-webkit-scrollbar-track]:bg-transparent">
-              {urls.map((thumb, i) => (
+              {photos.map((thumb, i) => (
                 <button
-                  key={`${thumb}-${i}`}
+                  key={`${thumb.displayUrl}-${i}`}
                   type="button"
                   ref={(el) => {
                     thumbBtnRefs.current[i] = el;
@@ -193,12 +195,12 @@ export function ProjectImageLightbox({ urls, startIndex, onClose, onIndexChange 
                   aria-label={`Миниатюра ${i + 1}`}
                   aria-current={i === index ? "true" : undefined}
                 >
-                  <SiteImage src={thumb} alt="" fill className="object-cover" />
+                  <SiteImage src={thumb.displayUrl} alt="" fill className="object-cover" />
                 </button>
               ))}
             </div>
             <p className="mt-2 text-center text-xs text-[var(--text-muted)]">
-              {index + 1} / {urls.length} · свайп по картинке
+              {index + 1} / {photos.length} · свайп по картинке
             </p>
           </div>
         )}

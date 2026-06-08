@@ -1,6 +1,7 @@
 import { CaseStudies } from "@/components/CaseStudies";
 import { Contact } from "@/components/Contact";
 import { Faq } from "@/components/Faq";
+import { Pricing } from "@/components/Pricing";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
 import { Process } from "@/components/Process";
@@ -11,6 +12,7 @@ import { SiteSpacingStyles } from "@/components/SiteSpacingStyles";
 import { ContentPreviewListener } from "@/components/ContentPreviewListener";
 import { SpacingPreviewListener } from "@/components/SpacingPreviewListener";
 import { Stats } from "@/components/Stats";
+import { headerPropsFromSettings } from "@/lib/header-props";
 import { getSiteContent } from "@/lib/site-data";
 import { Suspense } from "react";
 
@@ -34,13 +36,7 @@ export default async function HomePage() {
       <Suspense fallback={null}>
         <ContentPreviewListener />
       </Suspense>
-      <Header
-        brandName={content.settings.brandName}
-        brandHighlightText={content.settings.brandHighlightText}
-        brandHighlightColor={content.settings.brandHighlightColor}
-        buttonLabels={content.settings.buttonLabels}
-        overlay
-      />
+      <Header {...headerPropsFromSettings(content.settings)} overlay />
       <main className="overflow-x-clip">
         <SiteSection
           id="hero"
@@ -67,6 +63,9 @@ export default async function HomePage() {
         </SiteSection>
         <SiteSection id="services" spacing={sp.services}>
           <Services services={content.services} settings={content.settings} />
+        </SiteSection>
+        <SiteSection id="pricing" spacing={sp.pricing}>
+          <Pricing settings={content.settings} pricingPlans={content.pricingPlans} />
         </SiteSection>
         <SiteSection id="faq" spacing={sp.faq}>
           <Faq faqs={content.faqs} settings={content.settings} />

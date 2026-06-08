@@ -24,6 +24,9 @@
 .DS_Store
 *.pem
 dev.db
+prisma/dev.db
+/data/
+*.db
 *.db-journal
 
 # debug
@@ -43,3 +46,12 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
+
+# Legacy hero videos (~381 MB tracked) — production uses hero-dark.* / hero-light.* only.
+# Run once if already in git: git rm --cached public/video/177*.mp4 public/video/hero.mp4
+public/video/177*.mp4
+public/video/hero.mp4
+
+# Admin uploads (~67 MB). Safe for GitHub (no file >100 MB). Uncomment to keep repo smaller;
+# then use Vercel Blob or rsync for prod media (see docs/vercel-deploy.md).
+# public/uploads/

@@ -14,7 +14,7 @@ export function Services({ services, settings }: Pick<SiteContent, "services" | 
         subtitle="Не нужно искать подрядчиков на дизайн, разработку и маркетинг — закрываем весь цикл и отвечаем за результат."
         align="center"
       />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
         {services.map((service, index) => {
           const featured = index === 1;
           return (
@@ -50,10 +50,7 @@ export function Services({ services, settings }: Pick<SiteContent, "services" | 
           title="Не знаете, с чего начать?"
           subtitle="Оставьте заявку — предложим оптимальный набор услуг под ваш бюджет и сроки."
           primaryLabel={btn.servicesCtaPrimary}
-          secondaryLabel={btn.servicesCtaSecondary}
-          secondaryHref="#faq"
           primaryButtonField="servicesCtaPrimary"
-          secondaryButtonField="servicesCtaSecondary"
         />
       </div>
     </div>

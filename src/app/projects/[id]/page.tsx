@@ -10,7 +10,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const project = await getProjectLanding(Number(id));
   if (!project) return { title: "Проект не найден" };
   return {
-    title: `${project.title} — REDLINE`,
+    title: `${project.title} — QNOX`,
     description: project.description.slice(0, 160),
   };
 }

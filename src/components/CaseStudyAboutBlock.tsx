@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ProjectImageLightbox } from "./ProjectImageLightbox";
 import { Reveal } from "./Reveal";
 import { SiteImage } from "./SiteImage";
+import type { DetailPhoto } from "@/lib/project-gallery";
 
 export function CaseStudyAboutBlock({
   photos,
@@ -12,7 +13,7 @@ export function CaseStudyAboutBlock({
   resetKey,
   galleryLabel = "Галерея проекта",
 }: {
-  photos: string[];
+  photos: DetailPhoto[];
   alt: string;
   body: string;
   resetKey?: string | number;
@@ -26,7 +27,8 @@ export function CaseStudyAboutBlock({
   }, [resetKey]);
 
   const safeActive = photos.length === 0 ? 0 : Math.min(activeIndex, photos.length - 1);
-  const mainSrc = photos[safeActive] ?? "";
+  const activePhoto = photos[safeActive];
+  const mainSrc = activePhoto?.displayUrl ?? "";
   const hasGallery = photos.length > 1;
   const hasMainImage = photos.length > 0;
 
@@ -37,45 +39,45 @@ export function CaseStudyAboutBlock({
           <div className="case-landing__about-media">
             <button
               type="button"
-            className="case-landing__about-main group"
+              className="case-landing__about-main group"
               aria-label="Открыть изображение в полном размере"
               onClick={() => setLightboxIndex(safeActive)}
             >
               <SiteImage src={mainSrc} alt={alt} fill className="object-cover transition-opacity duration-300" />
               <span className="case-landing__about-main-hover" aria-hidden />
             </button>
+
+            {hasGallery ? (
+              <div className="case-landing__about-thumbs-wrap">
+                <p className="case-landing__about-thumbs-label">{galleryLabel}</p>
+                <ul className="case-landing__about-thumbs" aria-label="Дополнительные фото">
+                  {photos.map((photo, index) => (
+                    <li key={`${photo.displayUrl}-${index}`}>
+                      <button
+                        type="button"
+                        className={`case-landing__about-thumb ${index === safeActive ? "case-landing__about-thumb--active" : ""}`}
+                        aria-label={`Фото ${index + 1}${index === safeActive ? ", выбрано" : ""}`}
+                        aria-pressed={index === safeActive}
+                        onClick={() => setActiveIndex(index)}
+                      >
+                        <SiteImage src={photo.displayUrl} alt="" fill className="object-cover" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
           </div>
         ) : null}
 
         <div className="case-landing__about-content">
           <div className="case-landing__story-text whitespace-pre-wrap">{body}</div>
-
-          {hasGallery ? (
-            <div className="case-landing__about-thumbs-wrap">
-              <p className="case-landing__about-thumbs-label">{galleryLabel}</p>
-              <ul className="case-landing__about-thumbs" aria-label="Дополнительные фото">
-                {photos.map((url, index) => (
-                  <li key={`${url}-${index}`}>
-                    <button
-                      type="button"
-                      className={`case-landing__about-thumb ${index === safeActive ? "case-landing__about-thumb--active" : ""}`}
-                      aria-label={`Фото ${index + 1}${index === safeActive ? ", выбрано" : ""}`}
-                      aria-pressed={index === safeActive}
-                      onClick={() => setActiveIndex(index)}
-                    >
-                      <SiteImage src={url} alt="" fill className="object-cover" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
         </div>
       </div>
 
       {lightboxIndex !== null && photos.length > 0 && (
         <ProjectImageLightbox
-          urls={photos}
+          photos={photos}
           startIndex={lightboxIndex}
           onClose={() => setLightboxIndex(null)}
           onIndexChange={setActiveIndex}

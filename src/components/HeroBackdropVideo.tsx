@@ -4,6 +4,8 @@ import { useEffect, useRef } from "react";
 
 type Props = {
   src: string;
+  /** First-frame poster — shown immediately for faster LCP while the video loads */
+  poster?: string;
   className?: string;
   /**
    * Скорость воспроизведения. Сильно ниже ~0.5 браузеры часто показывают с рывками;
@@ -13,7 +15,7 @@ type Props = {
 };
 
 /** Фоновое зацикленное видео; при prefers-reduced-motion не воспроизводится */
-export function HeroBackdropVideo({ src, className = "", playbackRate = 0.5 }: Props) {
+export function HeroBackdropVideo({ src, poster, className = "", playbackRate = 0.5 }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -64,11 +66,12 @@ export function HeroBackdropVideo({ src, className = "", playbackRate = 0.5 }: P
       className={className}
       style={{ transform: "translateZ(0)", backfaceVisibility: "hidden" }}
       src={src}
+      poster={poster || undefined}
       muted
       loop
       playsInline
       autoPlay
-      preload="auto"
+      preload="metadata"
       disablePictureInPicture
       aria-hidden
       tabIndex={-1}
