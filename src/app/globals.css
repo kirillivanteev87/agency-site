@@ -1395,19 +1395,19 @@ html[data-theme="light"] .stats-card.card-interactive:hover {
 @media (min-width: 768px) {
   .pricing-section__grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    grid-template-rows: repeat(5, auto);
+    grid-template-rows: repeat(6, auto);
     gap: 1.25rem;
   }
 
   .pricing-section__grid > div:not(.pricing-section__span) {
     display: grid;
-    grid-row: 1 / 6;
+    grid-row: 1 / 7;
     grid-template-rows: subgrid;
     min-width: 0;
   }
 
   .pricing-section__span {
-    grid-row: 6;
+    grid-row: 7;
   }
 }
 
@@ -1428,7 +1428,7 @@ html[data-theme="light"] .stats-card.card-interactive:hover {
 @media (min-width: 768px) {
   .pricing-card {
     display: grid;
-    grid-row: 1 / 6;
+    grid-row: 1 / 7;
     grid-template-rows: subgrid;
     gap: 0;
     padding: 1.75rem 1.75rem 1.85rem;
@@ -1445,21 +1445,27 @@ html[data-theme="light"] .stats-card.card-interactive:hover {
     margin-top: 1.35rem;
   }
 
-  .pricing-card__context {
+  .pricing-card__audience {
     grid-row: 3;
     align-self: start;
     margin-top: 1.35rem;
   }
 
-  .pricing-card__features {
+  .pricing-card__outcome {
     grid-row: 4;
+    align-self: start;
+    margin-top: 0.65rem;
+  }
+
+  .pricing-card__features {
+    grid-row: 5;
     align-self: start;
     flex: none;
     margin-top: 1.35rem;
   }
 
   .pricing-card__cta {
-    grid-row: 5;
+    grid-row: 6;
     align-self: end;
     margin-top: 1.35rem;
   }
@@ -1486,10 +1492,15 @@ html[data-theme="light"] .stats-card.card-interactive:hover {
     }
 
     .pricing-card__price-block,
-    .pricing-card__context,
+    .pricing-card__audience,
+    .pricing-card__outcome,
     .pricing-card__features,
     .pricing-card__cta {
       margin-top: 0;
+    }
+
+    .pricing-card__audience {
+      min-height: 3.5rem;
     }
 
     .pricing-card__features {
@@ -1620,10 +1631,10 @@ html[data-theme="light"] .pricing-card--featured {
   color: color-mix(in srgb, var(--text-muted) 85%, transparent);
 }
 
-.pricing-card__context {
-  display: flex;
-  flex-direction: column;
-  gap: 0.65rem;
+@media (max-width: 767px) {
+  .pricing-card__audience + .pricing-card__outcome {
+    margin-top: -0.7rem;
+  }
 }
 
 .pricing-card__audience,

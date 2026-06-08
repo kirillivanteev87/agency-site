@@ -45,21 +45,17 @@ export function Pricing({ settings, pricingPlans }: Pick<SiteContent, "settings"
                   <span className="pricing-card__price-note">фиксированный старт</span>
                 </div>
 
-                {plan.audienceLabel || plan.outcomeText ? (
-                  <div className="pricing-card__context">
-                    {plan.audienceLabel ? (
-                      <p className="pricing-card__audience">
-                        <span className="pricing-card__context-label">Для кого</span>
-                        <span className="pricing-card__context-text">{plan.audienceLabel}</span>
-                      </p>
-                    ) : null}
-                    {plan.outcomeText ? (
-                      <p className="pricing-card__outcome">
-                        <span className="pricing-card__context-label">Результат</span>
-                        <span className="pricing-card__context-text">{plan.outcomeText}</span>
-                      </p>
-                    ) : null}
-                  </div>
+                {plan.audienceLabel ? (
+                  <p className="pricing-card__audience">
+                    <span className="pricing-card__context-label">Для кого</span>
+                    <span className="pricing-card__context-text">{plan.audienceLabel}</span>
+                  </p>
+                ) : null}
+                {plan.outcomeText ? (
+                  <p className="pricing-card__outcome">
+                    <span className="pricing-card__context-label">Результат</span>
+                    <span className="pricing-card__context-text">{plan.outcomeText}</span>
+                  </p>
                 ) : null}
 
                 {plan.features.length > 0 ? (
