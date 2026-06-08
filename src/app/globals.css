@@ -1461,7 +1461,7 @@ html[data-theme="light"] .stats-card.card-interactive:hover {
     grid-row: 5;
     align-self: start;
     flex: none;
-    margin-top: 1.35rem;
+    margin-top: 0.65rem;
   }
 
   .pricing-card__cta {
@@ -1632,8 +1632,8 @@ html[data-theme="light"] .pricing-card--featured {
 }
 
 @media (max-width: 767px) {
-  .pricing-card__audience + .pricing-card__outcome {
-    margin-top: -0.7rem;
+  .pricing-card__outcome {
+    margin-block: -0.7rem;
   }
 }
 
