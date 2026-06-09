@@ -22,10 +22,8 @@ export function Hero({
   );
 
   const heroVideoDark = settings.heroVideoUrl?.trim() ?? "";
-  const heroVideoLight = settings.heroVideoUrlLight?.trim() ?? "";
   const heroPosterDark = settings.heroVideoPosterUrl?.trim() ?? "";
-  const heroPosterLight = settings.heroVideoPosterUrlLight?.trim() ?? "";
-  const hasHeroVideo = heroVideoDark.length > 0 || heroVideoLight.length > 0;
+  const hasHeroVideo = heroVideoDark.length > 0;
 
   return (
     <div>
@@ -39,33 +37,12 @@ export function Hero({
             className="hero-backdrop hero-backdrop-cinema hero-backdrop-cinema--fullscreen pointer-events-none absolute z-0 overflow-hidden"
             aria-hidden
           >
-            {heroVideoDark ? (
-              <HeroBackdropVideo
-                key={heroVideoDark}
-                src={heroVideoDark}
-                poster={heroPosterDark || undefined}
-                className="hero-backdrop-video hero-backdrop-video--dark pointer-events-none absolute inset-0 z-0 h-full w-full object-cover"
-              />
-            ) : null}
-            {heroVideoLight ? (
-              <HeroBackdropVideo
-                key={heroVideoLight}
-                src={heroVideoLight}
-                poster={heroPosterLight || undefined}
-                className="hero-backdrop-video hero-backdrop-video--light pointer-events-none absolute inset-0 z-0 h-full w-full object-cover"
-              />
-            ) : (
-              <div
-                className="hero-backdrop-light hero-backdrop-theme-fallback pointer-events-none absolute inset-0 z-0"
-                aria-hidden
-              />
-            )}
-            {!heroVideoDark ? (
-              <div
-                className="hero-backdrop-dark-fallback pointer-events-none absolute inset-0 z-0 bg-[var(--bg)]"
-                aria-hidden
-              />
-            ) : null}
+            <HeroBackdropVideo
+              key={heroVideoDark}
+              src={heroVideoDark}
+              poster={heroPosterDark || undefined}
+              className="hero-backdrop-video hero-backdrop-video--dark pointer-events-none absolute inset-0 z-0 h-full w-full object-cover"
+            />
             <div className="hero-video-overlay pointer-events-none absolute inset-0 z-[1]" aria-hidden />
             <div className="hero-video-glow pointer-events-none absolute inset-0 z-[1]" aria-hidden />
           </div>

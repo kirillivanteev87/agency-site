@@ -21,9 +21,7 @@ export const dynamic = "force-dynamic";
 export default async function HomePage() {
   const content = await getSiteContent();
   const sp = content.sectionSpacing;
-  const hasHeroVideo = Boolean(
-    content.settings.heroVideoUrl?.trim() || content.settings.heroVideoUrlLight?.trim(),
-  );
+  const hasHeroVideo = Boolean(content.settings.heroVideoUrl?.trim());
   const heroSpacing = hasHeroVideo ? { ...sp.hero, paddingTop: 0 } : sp.hero;
   const spacingCss = hasHeroVideo ? { ...sp, hero: heroSpacing } : sp;
 

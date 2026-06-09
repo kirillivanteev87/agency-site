@@ -503,50 +503,6 @@ html[data-theme="light"] .brand-logo-image {
   }
 }
 
-/* Переключатель темы: луна слева, солнце справа */
-.theme-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.2rem;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--bg-card);
-  cursor: pointer;
-  transition:
-    border-color 0.2s ease,
-    background 0.2s ease;
-}
-
-.theme-toggle:hover {
-  border-color: rgba(225, 29, 72, 0.35);
-}
-
-.theme-toggle-track {
-  position: relative;
-  display: block;
-  width: 2rem;
-  height: 1.125rem;
-  border-radius: 999px;
-  background: var(--toggle-track);
-}
-
-.theme-toggle-thumb {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: calc(50% - 2px);
-  height: calc(100% - 4px);
-  border-radius: 999px;
-  background: var(--toggle-thumb);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.theme-toggle-thumb.is-light {
-  transform: translateX(100%);
-}
-
 .hero-video-overlay {
   background:
     linear-gradient(

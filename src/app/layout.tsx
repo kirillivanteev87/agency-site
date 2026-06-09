@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import { Geist } from "next/font/google";
 import { AiChatWidget } from "@/components/AiChatWidget";
-import { ThemeProvider } from "@/components/ThemeProvider";
 import { getSiteContent } from "@/lib/site-data";
 import "./globals.css";
 
@@ -30,21 +28,16 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const { settings } = await getSiteContent();
-  const cookieTheme = (await cookies()).get("site-theme")?.value;
-  const initialTheme = cookieTheme === "light" || cookieTheme === "dark" ? cookieTheme : "dark";
 
   return (
     <html
       lang="ru"
       className={`${geist.variable} h-full overflow-x-clip antialiased`}
-      data-theme={initialTheme}
-      suppressHydrationWarning
+      data-theme="dark"
     >
-      <body className="min-h-full overflow-x-clip" suppressHydrationWarning>
-        <ThemeProvider>
-          {children}
-          <AiChatWidget buttonLabels={settings.buttonLabels} />
-        </ThemeProvider>
+      <body className="min-h-full overflow-x-clip">
+        {children}
+        <AiChatWidget buttonLabels={settings.buttonLabels} />
       </body>
     </html>
   );
