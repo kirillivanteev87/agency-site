@@ -38,8 +38,14 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# embedded local PostgreSQL data (scripts/start-local-pg.mjs)
+.local-pg/
+
 # vercel
 .vercel
+
+# netlify
+.netlify
 
 # typescript
 *.tsbuildinfo

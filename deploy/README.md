@@ -149,9 +149,24 @@ sudo certbot --nginx -d example.ru -d www.example.ru
 
 ---
 
-## Альтернатива: Vercel (требует доработки)
+## Альтернатива: Netlify (serverless)
 
-Сейчас **не готово** к Vercel из коробки:
+Проект настроен под Netlify: `netlify.toml`, Neon PostgreSQL, медиа через Vercel Blob (токен) или Netlify Blobs.
+
+Подробно: **`docs/netlify-deploy.md`**, шаблон env: `deploy/env.netlify.example`.
+
+```bash
+npm run netlify link
+npm run netlify:deploy:prod
+```
+
+---
+
+## Альтернатива: Vercel
+
+Ранее основной serverless-хостинг. См. `docs/vercel-deploy.md` и `vercel.json`.
+
+Сейчас **не готово** к Vercel без Postgres + Blob (уже сделано в коде):
 
 | Проблема | Решение |
 |----------|---------|

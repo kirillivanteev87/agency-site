@@ -16,7 +16,77 @@ import {
   resolveHeroVideoPosterUrl,
   resolveHeroVideoUrl,
 } from "./hero-video-urls";
-import type { PricingPlan } from "@prisma/client";
+import type { PricingPlan, SiteSettings } from "@prisma/client";
+
+/** Used when DB is migrated but not seeded yet (e.g. first Vercel build). */
+const FALLBACK_SITE_SETTINGS: SiteSettings = {
+  id: 1,
+  brandName: "STUDIO",
+  brandHighlightText: "",
+  brandHighlightColor: "",
+  logoMode: "image",
+  logoImageUrl: "/images/qnox-logo.png",
+  heroTitle: "Создаём цифровые продукты",
+  heroHighlight: "которые работают",
+  heroSubtitle: "Веб-студия полного цикла: дизайн, разработка, продвижение",
+  heroMeta: "Ответим в течение 2 часов · Без обязательств · NDA по запросу",
+  heroBenefit1: "Рост заявок и продаж",
+  heroBenefit2: "Сроки и бюджет в договоре",
+  heroBenefit3: "Поддержка после запуска",
+  heroVideoUrl: "",
+  heroVideoUrlLight: "",
+  statValue: "70+",
+  statText: "успешных проектов за 5 лет работы",
+  footerCopyright: "© 2026 Studio. Все права защищены.",
+  footerDescriptor: "Студия цифровых продуктов: SaaS, AI и веб-платформы.",
+  footerBehanceUrl: "",
+  footerGithubUrl: "",
+  phones: '["+7 (999) 123-45-67"]',
+  emails: '["hello@studio.ru"]',
+  addresses: '["Москва, ул. Примерная, 1"]',
+  socialLinks: "[]",
+  sectionSpacing: "{}",
+  buttonLabels: "{}",
+  pricingEyebrow: "Тарифы",
+  pricingTitle: "Прозрачные пакеты под вашу задачу",
+  pricingSubtitle:
+    "Фиксированная стоимость старта — без скрытых строк. Точную смету уточним после брифа и созвона.",
+  pricingNote:
+    "Цены указаны за типовой объём. Нестандартный функционал, контент и интеграции считаем отдельно — смета за 20 минут после брифа.",
+  contactEyebrow: "Следующий шаг",
+  contactTitle: "Получите расчёт проекта за 24 часа",
+  contactSubtitle:
+    "Опишите задачу — предложим формат, сроки и ориентир по бюджету. Перезвоним в течение 2 часов в рабочее время.",
+  contactBullet1: "Бесплатная консультация",
+  contactBullet2: "NDA по запросу",
+  contactBullet3: "Без навязчивых продаж",
+  contactLabelPhone: "Телефон",
+  contactLabelEmail: "Email",
+  contactLabelAddress: "Адрес",
+  contactWhatsappUrl: "https://wa.me",
+  contactWhatsappLabel: "WhatsApp",
+  contactWhatsappLinkText: "WhatsApp",
+  contactTelegramUrl: "https://t.me",
+  contactTelegramLabel: "Telegram",
+  contactTelegramLinkText: "Telegram",
+  contactMaxUrl: "https://max.ru",
+  contactMaxLabel: "MAX",
+  contactMaxLinkText: "MAX",
+  contactFormTitle: "Заявка",
+  contactFormLead:
+    "Заполните форму — менеджер свяжется с вами и предложит решение под вашу задачу.",
+  contactNameLabel: "Имя",
+  contactNamePlaceholder: "Как к вам обращаться",
+  contactEmailLabel: "Email",
+  contactEmailPlaceholder: "name@company.ru",
+  contactPhoneLabel: "Телефон",
+  contactPhonePlaceholder: "+7 (999) 123-45-67",
+  contactMessageLabel: "Что нужно сделать?",
+  contactMessagePlaceholder: "Кратко опишите проект, сроки и бюджет (если есть)",
+  contactSuccessMessage:
+    "Заявка принята! Мы свяжемся с вами в ближайшие 2 часа в рабочее время.",
+  contactConsentText: "Нажимая кнопку, вы соглашаетесь на обработку персональных данных.",
+};
 
 async function fetchPricingPlans(): Promise<PricingPlan[]> {
   const delegate = (
@@ -84,8 +154,12 @@ export async function getSiteContent() {
       prisma.faq.findMany({ orderBy: { sortOrder: "asc" } }),
     ]);
 
-  const s = settings!;
+  const s = settings ?? FALLBACK_SITE_SETTINGS;
   const sectionSpacing: SpacingConfig = parseSpacingConfig(s.sectionSpacing);
+  const heroVideoUrl = resolveHeroVideoUrl(s.heroVideoUrl, DEFAULT_HERO_VIDEO_DARK);
+  const heroVideoUrlLightResolved = resolveHeroVideoUrl(s.heroVideoUrlLight, DEFAULT_HERO_VIDEO_LIGHT);
+  const heroVideoUrlLight =
+    heroVideoUrlLightResolved === heroVideoUrl ? DEFAULT_HERO_VIDEO_LIGHT : heroVideoUrlLightResolved;
 
   return {
     settings: {
@@ -101,14 +175,10 @@ export async function getSiteContent() {
       heroBenefit1: s.heroBenefit1 ?? "Рост заявок и продаж",
       heroBenefit2: s.heroBenefit2 ?? "Сроки и бюджет в договоре",
       heroBenefit3: s.heroBenefit3 ?? "Поддержка после запуска",
-      heroVideoUrl: resolveHeroVideoUrl(s.heroVideoUrl, DEFAULT_HERO_VIDEO_DARK),
-      heroVideoUrlLight: resolveHeroVideoUrl(s.heroVideoUrlLight, DEFAULT_HERO_VIDEO_LIGHT),
-      heroVideoPosterUrl: resolveHeroVideoPosterUrl(
-        resolveHeroVideoUrl(s.heroVideoUrl, DEFAULT_HERO_VIDEO_DARK),
-      ),
-      heroVideoPosterUrlLight: resolveHeroVideoPosterUrl(
-        resolveHeroVideoUrl(s.heroVideoUrlLight, DEFAULT_HERO_VIDEO_LIGHT),
-      ),
+      heroVideoUrl,
+      heroVideoUrlLight,
+      heroVideoPosterUrl: resolveHeroVideoPosterUrl(heroVideoUrl),
+      heroVideoPosterUrlLight: resolveHeroVideoPosterUrl(heroVideoUrlLight),
       statValue: s.statValue,
       statText: s.statText,
       footerCopyright: s.footerCopyright,

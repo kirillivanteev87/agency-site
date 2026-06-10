@@ -1,0 +1,17 @@
+# Netlify deploy config for agency-site (Next.js 16 + Prisma + Neon)
+# Docs: docs/netlify-deploy.md
+
+[build]
+  command = "prisma generate && PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK=1 prisma migrate deploy && next build"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Prisma query engine must ship with serverless functions
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = ["@prisma/client"]
+  included_files = ["node_modules/.prisma/**", "node_modules/@prisma/client/**"]
+
+# Upload routes: Next.js maxDuration export is respected by OpenNext where supported.
+# Netlify sync functions cap at 60s; request body is limited to ~6 MB (see docs).
