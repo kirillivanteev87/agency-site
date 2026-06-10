@@ -5,7 +5,7 @@
 # @netlify/plugin-nextjs (OpenNext) provisions functions + static assets.
 
 [build]
-  command = "prisma generate && PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK=1 prisma migrate deploy && next build"
+  command = "npm run build:netlify"
 
 [build.environment]
   NODE_VERSION = "20"

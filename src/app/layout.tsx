@@ -12,6 +12,9 @@ const geist = Geist({
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3001";
 
+/** CMS reads Postgres at request time — skip static prerender during `next build`. */
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: "Создание сайтов и приложений",

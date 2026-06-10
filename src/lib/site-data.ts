@@ -88,6 +88,20 @@ const FALLBACK_SITE_SETTINGS: SiteSettings = {
   contactConsentText: "Нажимая кнопку, вы соглашаетесь на обработку персональных данных.",
 };
 
+function hasDatabaseUrl() {
+  return Boolean(process.env.DATABASE_URL?.trim());
+}
+
+async function safeQuery<T>(label: string, query: () => Promise<T>, fallback: T): Promise<T> {
+  if (!hasDatabaseUrl()) return fallback;
+  try {
+    return await query();
+  } catch (e) {
+    console.error(`[getSiteContent] ${label} failed:`, e);
+    return fallback;
+  }
+}
+
 async function fetchPricingPlans(): Promise<PricingPlan[]> {
   const delegate = (
     prisma as unknown as { pricingPlan?: { findMany: (args: object) => Promise<PricingPlan[]> } }
@@ -98,12 +112,7 @@ async function fetchPricingPlans(): Promise<PricingPlan[]> {
     );
     return [];
   }
-  try {
-    return await delegate.findMany({ orderBy: { sortOrder: "asc" } });
-  } catch (e) {
-    console.error("[getSiteContent] pricingPlan.findMany failed:", e);
-    return [];
-  }
+  return safeQuery("pricingPlan.findMany", () => delegate.findMany({ orderBy: { sortOrder: "asc" } }), []);
 }
 
 export type { ButtonLabels };
@@ -145,13 +154,13 @@ export async function getCaseStudyLanding(id: number) {
 export async function getSiteContent() {
   const [settings, heroFeatures, projects, caseStudies, services, pricingPlans, faqs] =
     await Promise.all([
-      prisma.siteSettings.findUnique({ where: { id: 1 } }),
-      prisma.heroFeature.findMany({ orderBy: { sortOrder: "asc" } }),
-      prisma.project.findMany({ orderBy: { sortOrder: "asc" } }),
-      prisma.caseStudy.findMany({ orderBy: { sortOrder: "asc" } }),
-      prisma.service.findMany({ orderBy: { sortOrder: "asc" } }),
+      safeQuery("siteSettings.findUnique", () => prisma.siteSettings.findUnique({ where: { id: 1 } }), null),
+      safeQuery("heroFeature.findMany", () => prisma.heroFeature.findMany({ orderBy: { sortOrder: "asc" } }), []),
+      safeQuery("project.findMany", () => prisma.project.findMany({ orderBy: { sortOrder: "asc" } }), []),
+      safeQuery("caseStudy.findMany", () => prisma.caseStudy.findMany({ orderBy: { sortOrder: "asc" } }), []),
+      safeQuery("service.findMany", () => prisma.service.findMany({ orderBy: { sortOrder: "asc" } }), []),
       fetchPricingPlans(),
-      prisma.faq.findMany({ orderBy: { sortOrder: "asc" } }),
+      safeQuery("faq.findMany", () => prisma.faq.findMany({ orderBy: { sortOrder: "asc" } }), []),
     ]);
 
   const s = settings ?? FALLBACK_SITE_SETTINGS;
