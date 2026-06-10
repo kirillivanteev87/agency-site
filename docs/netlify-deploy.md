@@ -150,18 +150,15 @@ URL вида `https://….public.blob.vercel-storage.com/...` в PostgreSQL **п
 
 ## 6. Сборка и Prisma
 
-`netlify.toml` вызывает `npm run build:netlify`:
+`netlify.toml` вызывает `npm run build:netlify` → `scripts/netlify-build.mjs`:
 
-```bash
-prisma generate
-DATABASE_URL_UNPOOLED="${DATABASE_URL_UNPOOLED:-$DATABASE_URL}"  # fallback, если нет unpooled в env
-PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK=1 prisma migrate deploy
-next build
-```
+1. `prisma generate`
+2. Если задан `DATABASE_URL`: подставляет `DATABASE_URL_UNPOOLED` из unpooled URL или fallback на `DATABASE_URL`, затем `prisma migrate deploy` с `PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK=1`
+3. `next build`
 
 `PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK=1` — как на Vercel, чтобы избежать P1002 на Neon при migrate.
 
-`prisma/schema.prisma` использует `directUrl = env("DATABASE_URL_UNPOOLED")` — переменная должна быть в окружении на build; скрипт подставляет `DATABASE_URL`, если unpooled не задан.
+`prisma/schema.prisma` использует `directUrl = env("DATABASE_URL_UNPOOLED")` — скрипт выставляет переменную перед migrate, если unpooled не задан в Netlify env.
 
 ---
 
