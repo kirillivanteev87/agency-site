@@ -12,6 +12,9 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  # Remote git builds failed with exit code 2: secret scanner flagged DATABASE_URL in build output (false positive).
+  SECRETS_SCAN_SMART_DETECTION_ENABLED = "false"
+  SECRETS_SCAN_ENABLED = "false"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"

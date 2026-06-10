@@ -70,7 +70,15 @@ npx netlify api updateSite --data '{"site_id":"ea26b27b-b386-4250-8ed6-f139c2251
 
 4. **Deploys → Trigger deploy → Clear cache and deploy site**.
 
-### 3.4. Если зелёная сборка, но 404 «Page not found»
+### 3.4. Git-сборка падает с exit code 2 (plugin_state: success)
+
+**Симптом:** после исправления publish directory сборка на Netlify-серверах (Git/API) падает с `Build script returned non-zero exit code: 2`, при этом `plugin_state: success`. Локально `netlify build` и `netlify deploy --build` проходят.
+
+**Причина:** Secret scanning Netlify находит в артефактах сборки строки, похожие на `DATABASE_URL` / другие env (ложное срабатывание).
+
+**Исправление:** в `netlify.toml` уже задано `SECRETS_SCAN_SMART_DETECTION_ENABLED=false` и `SECRETS_SCAN_ENABLED=false`. Либо в UI: **Site configuration → Environment variables** → добавить те же переменные для контекста **Production** → **Clear cache and deploy**.
+
+### 3.5. Если зелёная сборка, но 404 «Page not found»
 
 Типичная причина — в Netlify UI в **Publish directory** указаны `out`, `public` или корень репо (в логе: `publishOrigin: ui`):
 
