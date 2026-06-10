@@ -6,7 +6,7 @@
     "dev": "PORT=3001 node scripts/dev-server.mjs",
     "dev:next": "next dev --turbo",
     "build": "prisma generate && next build",
-    "build:netlify": "prisma generate && DATABASE_URL_UNPOOLED=\"${DATABASE_URL_UNPOOLED:-$DATABASE_URL}\" PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK=1 prisma migrate deploy && next build",
+    "build:netlify": "node scripts/netlify-build.mjs",
     "start": "next start",
     "start:prod": "next start -H 127.0.0.1",
     "db:deploy": "prisma migrate deploy",
