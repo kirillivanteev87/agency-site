@@ -29,7 +29,7 @@
 |------------|-------------|----------|
 | `NEXT_PUBLIC_SITE_URL` | да | `https://qnox.ru` |
 | `DATABASE_URL` | да | Neon pooled URL |
-| `DATABASE_URL_UNPOOLED` | да | Neon direct URL (для `migrate deploy` на build) |
+| `DATABASE_URL_UNPOOLED` | рекомендуется | Neon direct URL (для `migrate deploy`). Если не задан — `build:netlify` использует `DATABASE_URL` |
 | `SESSION_SECRET` | да | `openssl rand -base64 32` |
 | `BLOB_READ_WRITE_TOKEN` | рекомендуется | Vercel Blob — старые URL + видео до 100 МБ |
 | `SMTP_*`, `LEAD_NOTIFY_EMAIL` | для заявок | Как на Vercel |
@@ -47,17 +47,22 @@
 2. [app.netlify.com](https://app.netlify.com) → **Add new site** → **Import an existing project**.
 3. Подключите GitHub/GitLab/Bitbucket, выберите репозиторий `agency-site`.
 4. Netlify подхватит `netlify.toml` (build command уже с `prisma migrate deploy`, плагин `@netlify/plugin-nextjs`).
-5. **Site configuration → Build & deploy → Build settings:** убедитесь, что **Publish directory пустой** (не `.next`, не `out`). Для SSR Next.js publish задаёт OpenNext-плагин.
+5. **Site configuration → Build & deploy → Build settings → Publish directory:** нажмите **Clear** и оставьте поле **пустым**. Значение из UI (`publishOrigin: ui`) **перебивает** `netlify.toml` — корень репозитория, `.next`, `out` или `public` дают 404 после зелёной сборки. Publish задаёт только `@netlify/plugin-nextjs`.
 6. **Site configuration → Environment variables** — скопируйте значения из Vercel / `deploy/env.netlify.example`.
 7. Deploy → дождитесь зелёной сборки.
 8. Проверьте preview URL, затем привяжите домен.
 
 ### 3.3. Если зелёная сборка, но 404 «Page not found»
 
-Типичная причина — Netlify не запустил OpenNext-адаптер:
+Типичная причина — в Netlify UI задан **Publish directory** (в логе: `publish: /opt/build/repo`, `publishOrigin: ui`):
+
+1. **Site configuration → Build & deploy → Build settings → Publish directory → Clear** (поле пустое).
+2. Trigger deploy → проверьте preview URL.
+
+Дополнительно:
 
 - В `netlify.toml` должен быть `[[plugins]] package = "@netlify/plugin-nextjs"`.
-- **Publish directory** в UI должен быть пустым (Clear), не `.next` / `out` / `public`.
+- В `netlify.toml` **нет** `publish = …` — и в UI тоже не должно быть.
 - Framework preset: **Next.js** (обычно определяется автоматически).
 
 ### 3.2. Через CLI
@@ -145,15 +150,18 @@ URL вида `https://….public.blob.vercel-storage.com/...` в PostgreSQL **п
 
 ## 6. Сборка и Prisma
 
-`netlify.toml`:
+`netlify.toml` вызывает `npm run build:netlify`:
 
-```toml
-command = "prisma generate && PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK=1 prisma migrate deploy && next build"
+```bash
+prisma generate
+DATABASE_URL_UNPOOLED="${DATABASE_URL_UNPOOLED:-$DATABASE_URL}"  # fallback, если нет unpooled в env
+PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK=1 prisma migrate deploy
+next build
 ```
 
 `PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK=1` — как на Vercel, чтобы избежать P1002 на Neon при migrate.
 
-`prisma/schema.prisma` использует `directUrl = env("DATABASE_URL_UNPOOLED")`.
+`prisma/schema.prisma` использует `directUrl = env("DATABASE_URL_UNPOOLED")` — переменная должна быть в окружении на build; скрипт подставляет `DATABASE_URL`, если unpooled не задан.
 
 ---
 

@@ -1,8 +1,10 @@
 # Netlify deploy config for agency-site (Next.js 16 + Prisma + Neon)
 # Docs: docs/netlify-deploy.md
 #
-# Do NOT set `publish` here or in the Netlify UI (.next / out break SSR).
-# @netlify/plugin-nextjs (OpenNext) provisions functions + static assets.
+# IMPORTANT — Publish directory (UI overrides this file):
+#   Site configuration → Build & deploy → Build settings → Publish directory MUST be EMPTY.
+#   If UI has publish = repo root, .next, out, or public → 404 after green build.
+#   Do NOT set `publish` below; @netlify/plugin-nextjs (OpenNext) sets output paths.
 
 [build]
   command = "npm run build:netlify"
