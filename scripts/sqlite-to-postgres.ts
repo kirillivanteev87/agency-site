@@ -4,15 +4,48 @@
  * Usage:
  *   npx tsx scripts/sqlite-to-postgres.ts
  *   SQLITE_PATH=prisma/dev.db DATABASE_URL="postgresql://..." npx tsx scripts/sqlite-to-postgres.ts
+ *   CONTENT_JSON=prisma/content-export.json DATABASE_URL="postgresql://..." npx tsx scripts/sqlite-to-postgres.ts
  *
- * Production (Neon/Vercel): set DATABASE_URL to the pooled or direct Postgres URL, then run the same command.
+ * Production (Neon/Vercel/Netlify): set DATABASE_URL (or DATABASE_POSTGRES_PRISMA_URL), then run the same command.
+ * Loads .env.production.local and .vercel/.env.production.local when present (does not override existing env).
  */
 import { execSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { config as loadEnv } from "dotenv";
 import { PrismaClient } from "@prisma/client";
 
 const root = process.cwd();
+
+for (const envFile of [".env.production.local", ".vercel/.env.production.local", ".env"]) {
+  const path = join(root, envFile);
+  if (existsSync(path)) loadEnv({ path, override: false });
+}
+
+function resolveDatabaseUrl(): string | undefined {
+  const candidates = [
+    process.env.DATABASE_URL,
+    process.env.DATABASE_POSTGRES_PRISMA_URL,
+    process.env.DATABASE_POSTGRES_URL,
+  ];
+  for (const value of candidates) {
+    const trimmed = value?.trim();
+    if (trimmed) return trimmed;
+  }
+  return undefined;
+}
+
+const databaseUrl = resolveDatabaseUrl();
+if (databaseUrl) {
+  process.env.DATABASE_URL = databaseUrl;
+  if (!process.env.DATABASE_URL_UNPOOLED?.trim()) {
+    const unpooled =
+      process.env.DATABASE_POSTGRES_URL_NON_POOLING?.trim() ||
+      process.env.DATABASE_URL_UNPOOLED?.trim() ||
+      databaseUrl;
+    process.env.DATABASE_URL_UNPOOLED = unpooled;
+  }
+}
 const sqlitePath = process.env.SQLITE_PATH ?? join(root, "prisma/dev.db");
 const contentJsonPath = process.env.CONTENT_JSON;
 
@@ -59,6 +92,11 @@ async function resetSequence(prisma: PrismaClient, table: string, column = "id")
 }
 
 async function main() {
+  if (!databaseUrl) {
+    throw new Error(
+      "DATABASE_URL is not set. Copy the Neon pooled URL from Vercel Storage or Neon dashboard, then rerun.",
+    );
+  }
   if (!contentJsonExport && !existsSync(sqlitePath)) {
     throw new Error(`SQLite database not found: ${sqlitePath}`);
   }

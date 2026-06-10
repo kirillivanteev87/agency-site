@@ -15,6 +15,7 @@
     "db:migrate:deploy": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
     "db:import-sqlite": "tsx scripts/sqlite-to-postgres.ts",
+    "db:import-production": "tsx scripts/sqlite-to-postgres.ts",
     "db:setup": "prisma migrate dev --name init && tsx prisma/seed.ts",
     "db:ensure": "node scripts/ensure-db.mjs",
     "dev:clean": "rm -rf .next && npm run db:ensure && npm run dev",

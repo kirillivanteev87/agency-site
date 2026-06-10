@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 /**
- * Netlify production build: Prisma generate, optional migrate, Next.js build.
- * Migrate is skipped when DATABASE_URL is unset; failures are logged but do not block next build.
+ * Vercel production build: Prisma generate, optional content import, migrate, Next.js build.
  */
 import { execSync } from "node:child_process";
 
@@ -10,7 +9,7 @@ function run(cmd, { allowFail = false } = {}) {
     execSync(cmd, { stdio: "inherit", env: process.env });
   } catch (error) {
     if (allowFail) {
-      console.warn(`[build:netlify] Command failed (continuing): ${cmd}`);
+      console.warn(`[build:vercel] Command failed (continuing): ${cmd}`);
       if (error instanceof Error) console.warn(error.message);
       return;
     }
@@ -34,11 +33,11 @@ if (dbUrl) {
   process.env.PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK = "1";
   run("npx prisma migrate deploy", { allowFail: true });
   if (process.env.IMPORT_CONTENT === "1") {
-    console.log("[build:netlify] IMPORT_CONTENT=1 — importing SQLite/content-export into PostgreSQL");
+    console.log("[build:vercel] IMPORT_CONTENT=1 — importing SQLite/content-export into PostgreSQL");
     run("node scripts/run-content-import.mjs");
   }
 } else {
-  console.warn("[build:netlify] DATABASE_URL not set — skipping prisma migrate deploy");
+  console.warn("[build:vercel] DATABASE_URL not set — skipping prisma migrate deploy");
 }
 
 run("npx next build");
