@@ -1,11 +1,17 @@
 # Netlify deploy config for agency-site (Next.js 16 + Prisma + Neon)
 # Docs: docs/netlify-deploy.md
+#
+# Do NOT set `publish` here or in the Netlify UI (.next / out break SSR).
+# @netlify/plugin-nextjs (OpenNext) provisions functions + static assets.
 
 [build]
   command = "prisma generate && PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK=1 prisma migrate deploy && next build"
 
 [build.environment]
   NODE_VERSION = "20"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
 
 # Prisma query engine must ship with serverless functions
 [functions]

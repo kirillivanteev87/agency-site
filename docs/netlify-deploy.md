@@ -46,10 +46,19 @@
 1. Закоммитьте и запушьте изменения (включая `netlify.toml`).
 2. [app.netlify.com](https://app.netlify.com) → **Add new site** → **Import an existing project**.
 3. Подключите GitHub/GitLab/Bitbucket, выберите репозиторий `agency-site`.
-4. Netlify подхватит `netlify.toml` (build command уже с `prisma migrate deploy`).
-5. **Site configuration → Environment variables** — скопируйте значения из Vercel / `deploy/env.netlify.example`.
-6. Deploy → дождитесь зелёной сборки.
-7. Проверьте preview URL, затем привяжите домен.
+4. Netlify подхватит `netlify.toml` (build command уже с `prisma migrate deploy`, плагин `@netlify/plugin-nextjs`).
+5. **Site configuration → Build & deploy → Build settings:** убедитесь, что **Publish directory пустой** (не `.next`, не `out`). Для SSR Next.js publish задаёт OpenNext-плагин.
+6. **Site configuration → Environment variables** — скопируйте значения из Vercel / `deploy/env.netlify.example`.
+7. Deploy → дождитесь зелёной сборки.
+8. Проверьте preview URL, затем привяжите домен.
+
+### 3.3. Если зелёная сборка, но 404 «Page not found»
+
+Типичная причина — Netlify не запустил OpenNext-адаптер:
+
+- В `netlify.toml` должен быть `[[plugins]] package = "@netlify/plugin-nextjs"`.
+- **Publish directory** в UI должен быть пустым (Clear), не `.next` / `out` / `public`.
+- Framework preset: **Next.js** (обычно определяется автоматически).
 
 ### 3.2. Через CLI
 
