@@ -6,7 +6,7 @@ import { BrandLogo } from "./BrandLogo";
 import type { SiteSettingsView } from "./types";
 
 const links = [
-  // { href: "/marketplace", label: "Лаборатория" }, // temporarily hidden
+  { href: "/marketplace", label: "Лаборатория" },
   { href: "/#projects", label: "Проекты" },
   { href: "/#cases", label: "Продукты" },
   { href: "/#services", label: "Услуги" },
