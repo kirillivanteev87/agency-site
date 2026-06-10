@@ -47,22 +47,39 @@
 2. [app.netlify.com](https://app.netlify.com) → **Add new site** → **Import an existing project**.
 3. Подключите GitHub/GitLab/Bitbucket, выберите репозиторий `agency-site`.
 4. Netlify подхватит `netlify.toml` (build command уже с `prisma migrate deploy`, плагин `@netlify/plugin-nextjs`).
-5. **Site configuration → Build & deploy → Build settings → Publish directory:** нажмите **Clear** и оставьте поле **пустым**. Значение из UI (`publishOrigin: ui`) **перебивает** `netlify.toml` — корень репозитория, `.next`, `out` или `public` дают 404 после зелёной сборки. Publish задаёт только `@netlify/plugin-nextjs`.
+5. **Site configuration → Build & deploy → Build settings → Publish directory:** нажмите **Clear** — поле должно быть **пустым** (не `/`, не `.`). Значение из UI (`publishOrigin: ui`) **перебивает** `netlify.toml`. В репозитории в `netlify.toml` задано `publish = ".next"` — это перекрывает дефолт Netlify `publish: "."` (корень репо), иначе падает `@netlify/plugin-nextjs`.
 6. **Site configuration → Environment variables** — скопируйте значения из Vercel / `deploy/env.netlify.example`.
 7. Deploy → дождитесь зелёной сборки.
 8. Проверьте preview URL, затем привяжите домен.
 
-### 3.3. Если зелёная сборка, но 404 «Page not found»
+### 3.3. Ошибка `@netlify/plugin-nextjs`: publish directory cannot be the same as the base directory
 
-Типичная причина — в Netlify UI задан **Publish directory** (в логе: `publish: /opt/build/repo`, `publishOrigin: ui`):
+**Симптом:** `next build` проходит (~20 с), затем падает плагин с текстом *«Your publish directory cannot be the same as the base directory»*. В resolved config: `publish: /opt/build/repo`, `publishOrigin: ui` или `default`.
 
-1. **Site configuration → Build & deploy → Build settings → Publish directory → Clear** (поле пустое).
+**Причина:** `@netlify/config` подставляет `publish: "."` (корень репо), если publish нигде не задан. Пустое поле в UI сохраняется в API как `build_settings.dir: ""` и на билд-серверах тоже даёт корень репо.
+
+**Исправление:**
+
+1. В `netlify.toml` должно быть `publish = ".next"` (уже в репозитории).
+2. **Site configuration → Build & deploy → Build settings → Publish directory → Clear** (поле пустое, не `/`).
+3. Через API сбросить UI-значение (если залогинены в Netlify CLI):
+
+```bash
+npx netlify api updateSite --data '{"site_id":"ea26b27b-b386-4250-8ed6-f139c2251a94","body":{"build_settings":{"dir":null,"base":null}}}'
+```
+
+4. **Deploys → Trigger deploy → Clear cache and deploy site**.
+
+### 3.4. Если зелёная сборка, но 404 «Page not found»
+
+Типичная причина — в Netlify UI в **Publish directory** указаны `out`, `public` или корень репо (в логе: `publishOrigin: ui`):
+
+1. **Site configuration → Build & deploy → Build settings → Publish directory → Clear**.
 2. Trigger deploy → проверьте preview URL.
 
 Дополнительно:
 
-- В `netlify.toml` должен быть `[[plugins]] package = "@netlify/plugin-nextjs"`.
-- В `netlify.toml` **нет** `publish = …` — и в UI тоже не должно быть.
+- В `netlify.toml`: `publish = ".next"` и `[[plugins]] package = "@netlify/plugin-nextjs"`.
 - Framework preset: **Next.js** (обычно определяется автоматически).
 
 ### 3.2. Через CLI

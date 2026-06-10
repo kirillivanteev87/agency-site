@@ -1,13 +1,14 @@
 # Netlify deploy config for agency-site (Next.js 16 + Prisma + Neon)
 # Docs: docs/netlify-deploy.md
 #
-# IMPORTANT — Publish directory (UI overrides this file):
-#   Site configuration → Build & deploy → Build settings → Publish directory MUST be EMPTY.
-#   If UI has publish = repo root, .next, out, or public → 404 after green build.
-#   Do NOT set `publish` below; @netlify/plugin-nextjs (OpenNext) sets output paths.
+# Publish directory: MUST be ".next" here (not repo root, not empty in UI).
+# @netlify/config defaults publish to "." when unset → plugin fails:
+# "publish directory cannot be the same as the base directory".
+# UI Publish directory must be EMPTY (Clear); netlify.toml overrides the default.
 
 [build]
   command = "npm run build:netlify"
+  publish = ".next"
 
 [build.environment]
   NODE_VERSION = "20"
